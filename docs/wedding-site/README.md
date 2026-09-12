@@ -1,7 +1,7 @@
 # Wedding site — reuse inventory & build plan
 
-Status: research complete, awaiting design PNG. Stack decision deferred to the
-planning session.
+Status: backend chosen and built. Awaiting the design PNG; frontend stack
+decision still open.
 
 Goal: turn a Canva design (PNG) into a real wedding site with an RSVP flow,
 reusing as much existing open source as possible.
@@ -55,28 +55,34 @@ tracked design polish, not license compatibility or stack fit.
    spacing/type reference, never as shipped code. Recommendation is to skip it
    and build components directly from the PNG.
 
-## Proposed stack (to confirm with the design in hand)
+## Decided: Google Sheets backend
 
-Next.js (App Router) + TypeScript + Tailwind + shadcn/ui, deployed on Vercel.
+Built and tested — see [sheets-backend.md](./sheets-backend.md).
 
-Storage is the one genuinely open decision:
+An earlier note here claimed Sheets could not support guest lookup or the
+invite-code model. That holds only for Sheets as a dumb form target. With Apps
+Script acting as a real API in front of the spreadsheet, code lookup and
+amending a submitted RSVP both work, so the party model in `lib/rsvp/` is
+unaffected. Zero cost and zero infra, and the guest list stays editable by
+anyone who can use a spreadsheet.
 
-- **Google Sheets via Apps Script** — zero cost, zero infra, and the sheet
-  doubles as the guest-list UI for non-technical editing. Ceiling: no guest
-  lookup by name, weak validation, awkward for per-party invite codes.
-- **Postgres (Supabase/Neon)** — needed for the party/code model above,
-  admin dashboard, and editing a submitted RSVP. More setup.
+Accepted trade-offs: a few hundred ms per call, invite codes that are
+obscurity rather than authentication, and no admin UI beyond the sheet itself.
 
-The party-based model in `lib/rsvp/` assumes a real database. If we drop invite
-codes in favour of open RSVP, Sheets becomes viable.
+## Proposed frontend (to confirm with the design in hand)
+
+Next.js (App Router) + TypeScript + Tailwind + shadcn/ui on Vercel. The backend
+does not depend on this choice — `lib/rsvp/client.ts` takes its endpoint as an
+argument and imports nothing framework-specific.
 
 ## Open questions for the planning session
 
-1. Invite-code flow (personal links per household) or open RSVP anyone can fill?
-2. Do guests need to edit an RSVP after submitting?
-3. Guest count — does it justify a database and admin view?
-4. Beyond RSVP: gallery, registry, travel/hotel info, schedule, guestbook?
-5. Domain and hosting — is this going under dan.sk.lee or its own domain?
+1. Do guests need to edit an RSVP after submitting? (Backend supports it; it is
+   a UI decision — surface the existing response, or not.)
+2. Beyond RSVP: gallery, registry, travel/hotel info, schedule, guestbook?
+3. Domain and hosting — is this going under dan.sk.lee or its own domain?
+4. Roughly how many parties? Changes nothing architecturally now, but it is
+   worth knowing before invitations go out.
 
 ## Attribution
 

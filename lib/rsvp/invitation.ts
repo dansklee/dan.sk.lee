@@ -63,12 +63,15 @@ export function buildInviteSlug(firstNames: string[], code: string): string {
 /**
  * Cross-field rule the upstream form enforced: accepting an invitation is
  * only coherent if at least one named guest is actually coming.
+ *
+ * The backend re-checks this — never rely on the client alone.
  */
 export function validateSubmission(
   submission: Pick<RsvpSubmission, "status" | "attending">,
 ): string | null {
   if (submission.status !== "attending") return null;
 
-  const anyone = Object.values(submission.attending).some(Boolean);
-  return anyone ? null : "Select at least one guest, or decline the invitation.";
+  return submission.attending.length > 0
+    ? null
+    : "Select at least one guest, or decline the invitation.";
 }
