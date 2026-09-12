@@ -27,6 +27,43 @@ npm run dev
 | `npm run test:validate` | RSVP rules, no DOM needed |
 | `npm run test:backend` | Exercises `apps-script/Code.gs` against a stubbed Google runtime |
 
+## Viewing it on your phone
+
+Both `npm run dev` and `npm start` already listen on every interface and print
+two URLs:
+
+```
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.24:3000     ← open this one on your phone
+```
+
+Put the phone on the same Wi-Fi and type that Network address in. No flag or
+tunnel needed.
+
+For a truer sense of how it will feel, use the production build instead of the
+dev server — dev recompiles on navigation and animations can stutter in a way
+they will not once deployed:
+
+```bash
+npm run build && npm start
+```
+
+If the Network URL will not load on the phone:
+
+- **Same network?** Phone on cellular, or on a "guest" Wi-Fi, will not reach
+  your laptop. Many corporate and café networks block device-to-device traffic
+  entirely (AP isolation) — a phone hotspot that the laptop joins is the
+  quickest way around it.
+- **macOS firewall.** System Settings → Network → Firewall may be blocking
+  incoming connections; allow node when prompted, or turn it off briefly.
+- **iOS Safari caches hard.** If you are seeing an older version after a
+  change, load the address once with any junk query — `http://192.168.1.24:3000/?x=1`
+  — which the cache has never seen and so cannot serve stale.
+
+The RSVP form will say it is not connected yet until
+`NEXT_PUBLIC_RSVP_ENDPOINT` is set. Everything else works, including both
+carousels and the form's validation.
+
 ## Where things live
 
 | Path | What it is |
