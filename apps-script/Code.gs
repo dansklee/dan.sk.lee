@@ -79,6 +79,27 @@ function cellSafe_(value) {
   return /^[=+\-@]/.test(value) ? "'" + value : value;
 }
 
+/**
+ * Cache key for the double-tap guard.
+ *
+ * Hashed rather than slugged: stripping non-alphanumerics collapsed every name
+ * written in a non-Latin script onto the same key, so the second such guest to
+ * reply inside the cooldown was turned away as a duplicate.
+ */
+function dedupeKey_(names) {
+  var digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.MD5,
+    names.toLowerCase(),
+    Utilities.Charset.UTF_8
+  );
+
+  var hex = '';
+  for (var i = 0; i < digest.length; i++) {
+    hex += ('0' + (digest[i] & 0xff).toString(16)).slice(-2);
+  }
+  return 'rsvp-' + hex;
+}
+
 /** Tri-state: true, false, or '' when the question does not apply. */
 function optionalBool_(value) {
   if (value === true || value === false) return value;
@@ -149,7 +170,7 @@ function handleRsvp_(body) {
 
   // One guest double-tapping submit should not land two rows.
   var cache = CacheService.getScriptCache();
-  var cacheKey = 'rsvp-' + names.toLowerCase().replace(/[^a-z0-9]/g, '');
+  var cacheKey = dedupeKey_(names);
   if (cache.get(cacheKey)) {
     return fail_('RATE_LIMITED', 'We already have that — thank you!');
   }
@@ -162,7 +183,7 @@ function handleRsvp_(body) {
     reception,
     dietary,
     dietaryNotes,
-    sanitize_(body.userAgent || '', MAX_USER_AGENT)
+    cellSafe_(sanitize_(body.userAgent || '', MAX_USER_AGENT))
   ];
 
   var lock = LockService.getScriptLock();

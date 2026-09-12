@@ -22,21 +22,52 @@ export function PageNav({ pages }: { pages: PageRef[] }) {
 
     if (sections.length === 0) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        // Pages are taller than the viewport, so pick whichever is showing
-        // most rather than trusting a single threshold crossing.
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    /*
+      Driven by position rather than an IntersectionObserver ratio. A callback
+      only reports the entries that crossed a threshold, so "whichever is
+      showing most" was comparing an incomplete set; and these pages are many
+      times taller than the viewport, so the visible share of the tallest never
+      reliably clears a fixed threshold at all.
 
-        if (visible) setActiveId(visible.target.id);
-      },
-      { threshold: [0.15, 0.35, 0.6], rootMargin: "-10% 0px -10% 0px" },
-    );
+      Asking which section the middle of the screen is currently inside has
+      neither problem, and is what the dots actually mean.
+    */
+    let queued = false;
 
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+    const pick = () => {
+      const midpoint = window.scrollY + window.innerHeight / 2;
+
+      let current = sections[0];
+      for (const section of sections) {
+        if (section.offsetTop <= midpoint) current = section;
+      }
+
+      // The last page can be shorter than half a viewport; at the very bottom
+      // of the document it is the one being looked at.
+      const atBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 2;
+
+      setActiveId(atBottom ? sections[sections.length - 1].id : current.id);
+    };
+
+    const onScroll = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        pick();
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    pick();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, [pages]);
 
   const goTo = (id: string) => {

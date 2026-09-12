@@ -70,6 +70,13 @@ export function RsvpForm() {
   /** Errors only start following keystrokes after the first failed submit. */
   const liveErrors = useRef(false);
 
+  /*
+    The in-flight guard has to be a ref, not the `sending` state. Taps that
+    land in the same tick all read the pre-render value of state, so a fast
+    double tap got through the disabled button and sent the reply twice.
+  */
+  const inFlight = useRef(false);
+
   const accepting = state.attending === "accepts";
   const needsNotes = accepting && state.dietary === "yes";
 
@@ -107,7 +114,7 @@ export function RsvpForm() {
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (sending) return;
+    if (inFlight.current) return;
 
     setFormError(null);
     const { valid, errors: found } = validateRsvp(state);
@@ -119,7 +126,9 @@ export function RsvpForm() {
       return;
     }
 
+    inFlight.current = true;
     setSending(true);
+
     const result = await submitRsvp(
       {
         names: state.names.trim(),
@@ -132,6 +141,7 @@ export function RsvpForm() {
       ENDPOINT,
     );
     setSending(false);
+    inFlight.current = false;
 
     if (result.ok) {
       setSent(state);
@@ -243,6 +253,7 @@ export function RsvpForm() {
               onChange={(event) => update({ dietaryNotes: event.target.value })}
               maxLength={1000}
               aria-invalid={errors.dietaryNotes ? true : undefined}
+              aria-describedby={errors.dietaryNotes ? `${notesId}-error` : undefined}
               className="mt-2 min-h-tap w-full border border-ink/25 bg-white px-3 text-[16px] text-ink outline-none focus:border-olive focus:ring-1 focus:ring-olive"
             />
             <ErrorLine id={`${notesId}-error`} message={errors.dietaryNotes} />
@@ -288,7 +299,12 @@ function Choice<T extends string>({
   onChange: (value: T) => void;
 }) {
   return (
-    <fieldset className="mt-6" data-field={field}>
+    <fieldset
+      className="mt-6"
+      data-field={field}
+      aria-describedby={error ? `${field}-error` : undefined}
+      aria-invalid={error ? true : undefined}
+    >
       <legend className="text-step--1 text-ink-soft">{legend}</legend>
       <div className="mt-2 space-y-2">
         {options.map((option) => {
@@ -296,7 +312,9 @@ function Choice<T extends string>({
           return (
             <label
               key={option.value}
-              className={`flex min-h-tap cursor-pointer items-center px-3 text-step--1 transition-colors duration-[260ms] ${
+              /* The radio itself is visually hidden, so focus has to show on
+                 the bar the guest can actually see. */
+              className={`flex min-h-tap cursor-pointer items-center px-3 text-step--1 transition-colors duration-[260ms] focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-olive ${
                 selected
                   ? "bg-olive text-cream-light"
                   : "bg-ink/[0.055] text-ink-soft"

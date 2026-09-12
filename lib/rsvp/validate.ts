@@ -39,7 +39,9 @@ export function validateRsvp(state: RsvpFormState): {
 } {
   const errors: RsvpErrors = {};
 
-  if (!clean(state.names)) {
+  // Matches MIN_NAMES in apps-script/Code.gs: a rule the server enforces but
+  // the client does not means a rejection with no field marked.
+  if (clean(state.names).length < 2) {
     errors.names = "Please tell us who you are.";
   }
 

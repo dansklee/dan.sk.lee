@@ -26,6 +26,23 @@ npm run dev
 | `npm test` | Validation rules plus the backend |
 | `npm run test:validate` | RSVP rules, no DOM needed |
 | `npm run test:backend` | Exercises `apps-script/Code.gs` against a stubbed Google runtime |
+| `npm run test:browser` | End-to-end checks in a real browser (see below) |
+
+`npm test` needs nothing but node. The browser suite needs Playwright, which is
+deliberately not a dependency — it pulls a browser binary that this site does
+not otherwise need:
+
+```bash
+npm i -D playwright && npx playwright install chromium     # once
+NEXT_PUBLIC_RSVP_ENDPOINT=https://rsvp.test/exec npm run build
+npm start -- -p 3400 &
+PORT=3400 npm run test:browser
+```
+
+It covers what unit tests cannot: that the navigator dot follows the page you
+are actually on, that an odd answer from the server reaches the guest instead
+of vanishing, that form errors are announced to screen readers, and that
+nothing pushes the page sideways at 320px, 390px or landscape.
 
 ## Viewing it on your phone
 

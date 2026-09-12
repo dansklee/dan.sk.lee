@@ -38,7 +38,18 @@ export function Countdown({
     const target = new Date(targetISO).getTime();
     if (Number.isNaN(target)) return;
 
-    const tick = () => setRemaining(remainingUntil(target));
+    // The clock shows minutes, so ticking every second must not re-render
+    // every second; keep the previous object unless a figure changed.
+    const tick = () =>
+      setRemaining((previous) => {
+        const next = remainingUntil(target);
+        if (!next || !previous) return next;
+        return previous.days === next.days &&
+          previous.hours === next.hours &&
+          previous.minutes === next.minutes
+          ? previous
+          : next;
+      });
     tick();
     setMounted(true);
 

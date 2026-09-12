@@ -14,7 +14,10 @@ export function TheDay() {
 
       <ol className="mx-auto mt-14 max-w-2xl text-cream-light">
         {schedule.map((item, index) => {
-          const Icon = icons[item.icon as IconName];
+          // data/wedding.ts is the documented copy-editing surface, so a typo
+          // here must not crash the render.
+          const Icon: ((props: { className?: string }) => React.JSX.Element) | undefined =
+            icons[item.icon as IconName];
           const onLeft = index % 2 === 1;
 
           return (
@@ -49,7 +52,11 @@ export function TheDay() {
                     : "sm:col-start-3"
                 }`}
               >
-                <Icon className="h-16 w-16 text-cream-light/85 sm:h-20 sm:w-20" />
+                {Icon ? (
+                  <Icon className="h-16 w-16 text-cream-light/85 sm:h-20 sm:w-20" />
+                ) : (
+                  <span className="block h-16 w-16 sm:h-20 sm:w-20" aria-hidden="true" />
+                )}
                 <p className="tracking-label mt-3 text-step--2">{item.time}</p>
                 <p className="font-script text-[calc(var(--step-1)*var(--script-bump))] leading-tight">
                   {item.label}

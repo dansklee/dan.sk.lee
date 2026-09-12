@@ -47,10 +47,27 @@ export function Reveal() {
 
     targets.forEach((el) => observer.observe(el));
 
+    // Measuring every target on every scroll event forces a reflow each time,
+    // so coalesce to one pass per frame and stop once all have arrived.
+    let pending = new Set(targets);
+    let queued = false;
+
     const sweep = () => {
-      targets.forEach((el) => {
-        if (el.classList.contains("is-in")) return;
-        if (el.getBoundingClientRect().top < window.innerHeight) show(el);
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        pending.forEach((el) => {
+          if (el.classList.contains("is-in")) {
+            pending.delete(el);
+            return;
+          }
+          if (el.getBoundingClientRect().top < window.innerHeight) {
+            show(el);
+            pending.delete(el);
+          }
+        });
+        if (pending.size === 0) window.removeEventListener("scroll", sweep);
       });
     };
 
@@ -58,6 +75,7 @@ export function Reveal() {
     return () => {
       observer.disconnect();
       window.removeEventListener("scroll", sweep);
+      pending = new Set();
     };
   }, []);
 

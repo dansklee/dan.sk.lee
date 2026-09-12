@@ -6,8 +6,33 @@ import type { ApiResult, RsvpAccepted, RsvpSubmission } from "./types";
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 
+/**
+ * AbortSignal.timeout is unsupported before iOS Safari 16; calling it throws,
+ * which would otherwise surface as "check your connection" on every attempt,
+ * leaving those guests unable to reply at all.
+ */
+function timeoutSignal(ms: number): { signal: AbortSignal; done: () => void } {
+  if (typeof AbortSignal.timeout === "function") {
+    return { signal: AbortSignal.timeout(ms), done: () => {} };
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return { signal: controller.signal, done: () => clearTimeout(timer) };
+}
+
+/** A 200 with an unexpected body must not read as a silent success. */
+function isApiResult(value: unknown): value is ApiResult<RsvpAccepted> {
+  if (typeof value !== "object" || value === null) return false;
+  const result = value as { ok?: unknown; message?: unknown };
+  if (result.ok === true) return true;
+  return result.ok === false && typeof result.message === "string";
+}
+
 function networkError(error: unknown): ApiResult<never> {
-  const timedOut = error instanceof DOMException && error.name === "TimeoutError";
+  const timedOut =
+    error instanceof DOMException &&
+    (error.name === "TimeoutError" || error.name === "AbortError");
   return {
     ok: false,
     error: "NETWORK_ERROR",
@@ -49,6 +74,8 @@ export async function submitRsvp(
       typeof navigator === "undefined" ? "" : navigator.userAgent.slice(0, 200),
   };
 
+  const { signal, done } = timeoutSignal(timeoutMs);
+
   try {
     const response = await fetch(endpoint, {
       method: "POST",
@@ -58,19 +85,22 @@ export async function submitRsvp(
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload),
       redirect: "follow",
-      signal: AbortSignal.timeout(timeoutMs),
+      signal,
     });
 
     if (!response.ok) return serverError;
 
-    // Apps Script can answer 200 with an HTML error page; treat that as a
-    // failure rather than letting a parse error escape.
+    // Apps Script can answer 200 with an HTML error page, or with a body that
+    // is valid JSON but not our envelope. Either is a failure, not a success.
     try {
-      return (await response.json()) as ApiResult<RsvpAccepted>;
+      const body: unknown = await response.json();
+      return isApiResult(body) ? body : serverError;
     } catch {
       return serverError;
     }
   } catch (error) {
     return networkError(error);
+  } finally {
+    done();
   }
 }
