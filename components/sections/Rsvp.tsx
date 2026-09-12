@@ -1,0 +1,34 @@
+import { RsvpForm } from "@/components/RsvpForm";
+import { rsvpCopy } from "@/data/wedding";
+
+export function Rsvp() {
+  return (
+    <section
+      className="relative overflow-hidden bg-olive-deep"
+      aria-labelledby="rsvp-heading"
+    >
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/bg-rsvp.svg')" }}
+        aria-hidden="true"
+      />
+      <div className="photo-scrim absolute inset-0" aria-hidden="true" />
+
+      <div className="relative px-5 py-16 sm:py-20">
+        <h2
+          id="rsvp-heading"
+          className="text-center font-display text-5xl tracking-[0.1em] text-cream-light sm:text-6xl"
+        >
+          {rsvpCopy.title}
+        </h2>
+        <p className="mt-3 text-center text-sm text-cream-light/90">
+          {rsvpCopy.deadline}
+        </p>
+
+        <div className="mx-auto mt-10 w-full max-w-md shadow-[0_20px_60px_rgba(24,22,16,0.35)]">
+          <RsvpForm />
+        </div>
+      </div>
+    </section>
+  );
+}

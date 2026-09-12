@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: theme("colors.cream.DEFAULT");
+  color: theme("colors.ink.DEFAULT");
+  font-family: theme("fontFamily.body");
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@layer components {
+  /* Letterspaced small caps used for eyebrows and addresses. */
+  .tracking-label {
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  /* The hairline-and-diamond divider between blocks in the comps. */
+  .rule-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .rule-ornament::before,
+  .rule-ornament::after {
+    content: "";
+    height: 1px;
+    width: 2.25rem;
+    background-color: currentColor;
+    opacity: 0.5;
+  }
+}
+
+/* Photographic sections are darkened so light type stays legible on any crop. */
+.photo-scrim {
+  background-color: rgba(38, 34, 26, 0.55);
+}

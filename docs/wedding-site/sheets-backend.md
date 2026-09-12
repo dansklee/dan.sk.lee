@@ -1,40 +1,29 @@
 # Google Sheets backend
 
 The RSVP backend is a Google Apps Script Web App in front of one spreadsheet.
-No server, no database, no hosting cost — and the spreadsheet doubles as the
-guest-list editor, so it can be maintained without touching code.
+No server, no database, no hosting cost.
 
 Source: [`apps-script/Code.gs`](../../apps-script/Code.gs)
 
 ## Sheet layout
 
-Both tabs are created automatically on first use, with these headers.
+The `Responses` tab is created automatically on first submission.
 
-### `Guests` — maintained by hand
+| timestamp | names | attending | ceremony | reception | dietaryRestrictions | dietaryNotes | userAgent |
+|---|---|---|---|---|---|---|---|
+| 2026-09-12 10:04 | Alex & Sam Lee | accepts | TRUE | TRUE | FALSE | | Mozilla/5.0… |
+| 2026-09-12 11:31 | Jo Park | declines | | | | | Mozilla/5.0… |
 
-One row per person. **Everyone in a party shares one code**; that is what makes
-them a party.
+`names` is free text, exactly as the guest typed it — the form asks for "the
+guest(s) named on your invitation", so one row can cover a household.
 
-| code | firstName | lastName | isPrimary | allowsPlusOne |
-|---|---|---|---|---|
-| `AB12CD` | Alex | Lee | TRUE | FALSE |
-| `AB12CD` | Sam | Lee | FALSE | FALSE |
-| `ZZ99ZZ` | Jo | Park | TRUE | TRUE |
+The four columns after `attending` are blank for anyone who declines: the form
+does not ask those questions once someone says they cannot come.
 
-- `code` — 6 characters. Case-insensitive; stored and compared uppercase.
-- `isPrimary` — who the invitation is addressed to.
-- `allowsPlusOne` — TRUE on any row grants the whole party an unnamed plus-one.
-
-To mint codes: open the Apps Script editor and run `generateInviteCodes(20)`,
-then read them from the execution log. Codes skip `0/O` and `1/I/L` so they
-survive being read off a printed invitation.
-
-### `Responses` — written by the app
-
-One row per party, **overwritten** when a party amends its RSVP, so the sheet
-always shows current answers rather than a submission history.
-
-| updatedAt | code | status | attending | plusOneName | dietaryRestrictions | songRequest | travelPlans | message | userAgent |
+**Every submission appends a row.** With free-text names there is no reliable
+key to update against, and two guests sharing a name would silently overwrite
+each other. Duplicates are easy to reconcile; a lost reply is not. If someone
+replies twice, the newest row wins — sort by `timestamp` when you count.
 
 ## Deploying
 
@@ -45,7 +34,8 @@ always shows current answers rather than a submission history.
 4. **Deploy → New deployment → Web app**
    - Execute as: **Me**
    - Who has access: **Anyone**
-5. Copy the `/exec` URL — that is the endpoint the site calls.
+5. Copy the `/exec` URL into `.env.local` as `NEXT_PUBLIC_RSVP_ENDPOINT`, and
+   into the same variable in your Vercel project settings.
 
 Re-deploy as a **new version** after editing the script, or the live URL keeps
 serving the old code.
@@ -53,44 +43,43 @@ serving the old code.
 ## API
 
 ```
-GET  ?action=invite&code=AB12CD
-  -> { ok: true, data: { code, invitees[], allowsPlusOne, existingResponse } }
-
-POST { action: "rsvp", code, status, attending[], plusOneName?, ... }
-  -> { ok: true, data: { status, attending[] } }
+POST { action: "rsvp", names, attending, ceremony, reception,
+       dietaryRestrictions, dietaryNotes }
+  -> { ok: true, data: { attending } }
 ```
 
-Failures answer `{ ok: false, error, message }`, where `message` is safe to show
-a guest. Codes are in `RsvpErrorCode` in [`lib/rsvp/types.ts`](../../lib/rsvp/types.ts).
+`attending` is `"accepts"` or `"declines"`. The three yes/no answers are
+booleans when accepting and `null` when declining.
+
+Failures answer `{ ok: false, error, message }`, where `message` is safe to
+show a guest. Codes are listed in `RsvpErrorCode` in
+[`lib/rsvp/types.ts`](../../lib/rsvp/types.ts).
+
+There is no `GET`: replies are private to the couple's spreadsheet, so the
+endpoint never reads anything back out.
 
 The client is [`lib/rsvp/client.ts`](../../lib/rsvp/client.ts). It posts
-`Content-Type: text/plain` on purpose: that keeps the request a CORS "simple
-request", and Apps Script does not answer the preflight that `application/json`
-would trigger.
+`Content-Type: text/plain` on purpose — that keeps the request a CORS "simple
+request", and Apps Script does not answer the preflight that
+`application/json` would trigger.
 
 ## Tests
 
 ```
-node apps-script/test/code.test.mjs
+npm run test:backend
 ```
 
-Stubs the Google runtime and drives the real `Code.gs`, covering lookup,
-upsert-on-resubmit, guest-list spoofing, formula injection, and rate limiting.
-No dependencies.
+Stubs the Google runtime and drives the real `Code.gs`: validation for every
+field, the decline path, formula injection, markup stripping, length caps and
+the double-tap guard. No dependencies beyond node.
 
 ## What this is not
 
-Worth knowing before the invitations go out:
-
-- **Invite codes are obscurity, not authentication.** The endpoint is public by
-  necessity. 6 characters from a 31-character alphabet is ~887M combinations,
-  which is ample against casual guessing but is not a login. Anyone holding a
-  code sees that party's names and their response.
-- **Keep sensitive detail out of the sheet.** Home addresses and phone numbers
-  do not belong in `Guests`; a leaked code would expose them.
-- **Apps Script quotas** are generous for a wedding (~20k URL-fetch calls/day on
-  a consumer account) but it is not a fast API — expect a few hundred ms per
-  call, and design the form to show a pending state.
+- **Anyone can submit.** The endpoint is public and unauthenticated, which is
+  what an open RSVP form means. Expect the occasional junk row; the rate limit
+  only stops accidental double-taps, not someone determined.
+- **Apps Script quotas** are generous for a wedding but it is not a fast API —
+  a few hundred ms per call, which is why the button shows a sending state.
 - **Guest text is escaped before it reaches the sheet.** Leading `=`, `+`, `-`
-  and `@` are prefixed with `'` so a guest cannot land a live formula in the
-  planning spreadsheet.
+  and `@` are prefixed with `'` so a guest cannot land a live formula in your
+  planning spreadsheet, and HTML tags are stripped.
