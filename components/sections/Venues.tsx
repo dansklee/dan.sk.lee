@@ -8,8 +8,11 @@ export function Venues() {
       aria-label="Ceremony and reception"
     >
       <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/bg-venues.svg')" }}
+        className="absolute inset-0 bg-cover"
+        style={{
+          backgroundImage: "url('/images/bg-venues.jpg')",
+          backgroundPosition: "center 35%",
+        }}
         aria-hidden="true"
       />
       <div className="photo-scrim absolute inset-0" aria-hidden="true" />

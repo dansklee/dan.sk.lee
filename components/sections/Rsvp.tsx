@@ -8,8 +8,11 @@ export function Rsvp() {
       aria-labelledby="rsvp-heading"
     >
       <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/bg-rsvp.svg')" }}
+        className="absolute inset-0 bg-cover"
+        style={{
+          backgroundImage: "url('/images/bg-rsvp.jpg')",
+          backgroundPosition: "center 28%",
+        }}
         aria-hidden="true"
       />
       <div className="photo-scrim absolute inset-0" aria-hidden="true" />
