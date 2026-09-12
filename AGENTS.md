@@ -8,9 +8,11 @@ no code — the artifacts are markdown that both humans and agents read.
 
 - `.github/workflows/*.md` — workflow **sources**. YAML frontmatter defines
   triggers, permissions, and safe outputs; the body is the prompt.
-- `.github/workflows/*.lock.yml` — **generated**. Never edit by hand. Produced
-  by `./scripts/compile.sh` (`gh aw compile`) and committed alongside the
-  source.
+- `.github/workflows/*.lock.yml` and `agentics-maintenance.yml` — **generated**.
+  Never edit by hand. Produced
+  by `./scripts/compile.sh` (`gh aw compile`). Not present yet: they must be
+  built once by the repo owner's own installed CLI so pinned action versions
+  match it, and committed from then on alongside the source.
 - `.github/policies/*.md` — rubrics read at runtime by the workflows. Editing a
   policy changes behavior on the next run, with no recompile.
 - `context/*.md` — the user's operating context. Read at runtime.

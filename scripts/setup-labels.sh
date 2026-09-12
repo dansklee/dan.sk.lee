@@ -41,6 +41,7 @@ create "strategy:neutral"     "c5def5" "Touches nothing in the strategy"
 create "strategy:misaligned"  "d93f0b" "Requires the side of a tradeoff we said we'd give up"
 
 # Workflow outputs
+create "assumptions-surfaced" "c5def5" "Assumption surfacer has commented; won't re-post"
 create "red-team-report"   "5319e7" "Red team challenge output"
 
 echo "Done."

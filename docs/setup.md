@@ -27,8 +27,9 @@ gh-aw — it needs an API key.
 ```
 
 Labels aren't cosmetic here: applying `intake` is what triggers triage, and
-applying `red-team` is what triggers a challenge. The workflows won't fire
-without them.
+applying `red-team` is what triggers a challenge. `assumptions-surfaced` is how
+the assumption surfacer remembers not to comment twice on the same issue. The
+workflows won't fire — or will repeat themselves — without them.
 
 ## 3. Fill in the context files
 
@@ -89,8 +90,10 @@ Each run is one agent session. Rough expectations at current pricing:
 | Workflow | Frequency | Per run |
 |---|---|---|
 | Intake Triage | per request | cents |
+| Assumption Surfacer | per issue opened or edited | cents — the most frequent, the cheapest |
 | Decision Log | per transcript push + Friday | cents to low dollars, scales with transcript length |
 | Red Team | Wednesdays | cents to low dollars |
+| Strategy Alignment | Mondays | low dollars — reads a week of activity |
 
 The dominant cost is transcript length. If you push hour-long meetings daily,
 watch `gh aw logs` for the first couple of weeks before assuming it's cheap.

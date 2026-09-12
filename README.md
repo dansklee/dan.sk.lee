@@ -1,6 +1,6 @@
 # Product Operating Repo
 
-Three agentic workflows for a head of product, plus the written context that
+Five agentic workflows for a head of product, plus the written context that
 makes their output specific rather than generic.
 
 Built on [GitHub Agentic Workflows](https://github.github.io/gh-aw/), adapted
@@ -9,26 +9,36 @@ which demonstrates 24 workflows for a fictional team with compliance, GTM, and
 launch tracking. This keeps the parts that survive contact with one person's
 actual week.
 
-## The three
+## The five
 
 | Workflow | Fires when | Produces |
 |---|---|---|
 | [**Intake Triage**](.github/workflows/intake-triage.md) | the `intake` label lands on an issue | One comment: verdict, RICE with its reasoning, Kano class, strategy alignment, duplicates |
+| [**Assumption Surfacer**](.github/workflows/assumption-surfacer.md) | an issue is opened or edited | Up to four unchecked claims the plan rests on, each with a way to settle it |
 | [**Decision Log**](.github/workflows/decision-log.md) | a transcript is pushed, and Fridays | A PR adding dated decision records to [`decisions/`](decisions/) |
 | [**Red Team**](.github/workflows/red-team.md) | Wednesdays, or the `red-team` label | Two or three specific challenges to your recent decisions |
+| [**Strategy Alignment**](.github/workflows/strategy-alignment.md) | Mondays | Comments on clear misalignment, plus a PR appending evidence to `context/strategy.md` |
 
-## Why these three
+## Why these five
 
-They cover the three things that actually consume a head of product's week:
-deciding what not to do, remembering why you decided things, and finding out
-you were wrong while it's still cheap.
+They form one loop rather than five features. A request arrives and gets scored
+against strategy (**Intake**). Whatever gets planned has its unchecked claims
+named (**Assumptions**). What gets decided is recorded with the beliefs it
+rested on (**Decision Log**). Those beliefs get attacked while changing course
+is still cheap (**Red Team**). And the strategy those judgments lean on
+accumulates evidence for or against itself (**Strategy Alignment**).
+
+The last one is what keeps `context/strategy.md` from becoming a file you wrote
+once: when a tradeoff has been cut against three weeks running, it says so.
 
 Deliberately not included: weekly status rollups, compliance rubrics, GTM
-content, launch readiness, process analyzers, chaos injection, workflow health
-monitoring, sample-data generators. They're good ideas in the reference repo;
-they need a team, a tracker, and a launch pipeline to be worth their runtime.
-Add them when you have those — [`docs/setup.md`](docs/setup.md) points back at
-the originals.
+content, launch readiness, calendar intelligence, process analyzers, chaos
+injection, workflow health monitoring, commitment reconciliation, sample-data
+generators. They're good ideas in the reference repo; most need a tracker, a
+launch pipeline, or a compliance function to have anything to read. The nearest
+additions if that changes are **Commitment Reconciler** (promised in a meeting
+vs. actually tracked — works from transcripts alone) and **Calendar Strategy
+Audit** (where your time goes vs. stated priorities — needs Google OAuth).
 
 ## How it works
 
@@ -90,7 +100,7 @@ inventing a strategy. Thirty minutes writing these is the whole investment.
 
 ```
 .github/
-  workflows/       Three workflow sources (.md) — compile to .lock.yml
+  workflows/       Five workflow sources (.md) — compile to .lock.yml
   policies/        Scoring rubrics and argument lenses, read at runtime
   ISSUE_TEMPLATE/  The intake form
 context/           Your operating context — fill these in first
