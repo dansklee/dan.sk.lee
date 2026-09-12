@@ -112,9 +112,18 @@ export const recommendations = [
 ] as const;
 
 export const gallery = [
-  { src: "/images/gallery-1.svg", alt: "Dan and Tien walking with their dog" },
-  { src: "/images/gallery-2.svg", alt: "Dan and Tien dancing on a staircase" },
-  { src: "/images/gallery-3.svg", alt: "Dan and Tien beside a fountain" },
+  {
+    src: "/images/gallery-1.jpg",
+    alt: "Dan and Tien holding their French bulldog between them, Pasadena City Hall behind",
+  },
+  {
+    src: "/images/gallery-2.jpg",
+    alt: "Dan twirling Tien under his arm on a curved staircase",
+  },
+  {
+    src: "/images/gallery-3.jpg",
+    alt: "Dan and Tien leaning against a fountain, their dog lying at their feet",
+  },
 ] as const;
 
 export const rsvpCopy = {

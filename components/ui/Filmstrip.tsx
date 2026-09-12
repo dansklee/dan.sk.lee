@@ -41,9 +41,16 @@ export function Filmstrip({
     const strip = stripRef.current;
     if (!strip) return;
 
+    /*
+      Whether this strip scrolls is decided by CSS, not by arithmetic: at the
+      grid breakpoint the columns round up to a few pixels wider than the
+      container, which is enough to read as "scrollable" and leave a dead
+      indicator sitting under a grid. Ask the computed style instead.
+    */
+    const scrolls = getComputedStyle(strip).overflowX !== "visible";
     const scrollable = strip.scrollWidth - strip.clientWidth;
-    if (scrollable <= 1) {
-      // Laid out as a grid — there is nothing left to indicate.
+
+    if (!scrolls || scrollable <= 1) {
       setThumb(null);
       return;
     }
@@ -72,14 +79,41 @@ export function Filmstrip({
     strip.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", update, { passive: true });
 
-    // Fonts and images shift the scroll width after first paint.
+    /*
+      Photographs arrive after first paint and change the strip's scroll width
+      without changing its own border box, so watching only the strip leaves a
+      stale indicator — visible as "Swipe for more" under a desktop grid that
+      does not scroll. Watch the frames too, and catch each image as it lands.
+      `load` does not bubble, hence the capture phase.
+    */
     const observer = new ResizeObserver(update);
     observer.observe(strip);
+    Array.from(strip.children).forEach((child) => observer.observe(child));
+    strip.addEventListener("load", update, true);
+
+    /*
+      None of the above reliably fires once the grid settles: the frames are
+      fixed-ratio so they never resize, and a `fill` image is absolutely
+      positioned so loading one changes nothing's box. Measured once too early,
+      the indicator sticks — visible as "Swipe for more" under a desktop grid
+      that does not scroll. So re-measure unconditionally after layout, again
+      once everything has loaded, and whenever the grid breakpoint flips.
+    */
+    const frame = requestAnimationFrame(() => requestAnimationFrame(update));
+    window.addEventListener("load", update);
+
+    const wide = window.matchMedia("(min-width: 768px)");
+    wide.addEventListener("change", update);
+
     update();
 
     return () => {
       strip.removeEventListener("scroll", onScroll);
+      strip.removeEventListener("load", update, true);
       window.removeEventListener("resize", update);
+      window.removeEventListener("load", update);
+      wide.removeEventListener("change", update);
+      cancelAnimationFrame(frame);
       observer.disconnect();
     };
   }, [update]);

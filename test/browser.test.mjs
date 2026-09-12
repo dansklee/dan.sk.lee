@@ -302,6 +302,82 @@ console.log("\nLayout — nothing may push the page sideways");
 }
 
 // ---------------------------------------------------------------------------
+console.log("\nFilmstrips — indicate only where they actually scroll");
+{
+  // Column widths round a few pixels past the container at the grid
+  // breakpoint, which once left a dead "Swipe for more" under a desktop grid.
+  for (const [width, shouldSwipe] of [
+    [1280, false],
+    [1024, false],
+    [768, false],
+    [767, true],
+    [390, true],
+  ]) {
+    const page = await (
+      await browser.newContext({ viewport: { width, height: 900 } })
+    ).newPage();
+    await page.goto(URL, { waitUntil: "networkidle" });
+    await page.evaluate(async () => {
+      window.scrollTo(0, document.body.scrollHeight);
+      await new Promise((r) => setTimeout(r, 500));
+    });
+    await page.waitForTimeout(1200);
+
+    const hints = await page.evaluate(
+      () =>
+        [...document.querySelectorAll("p")].filter(
+          (p) => p.textContent === "Swipe for more",
+        ).length,
+    );
+
+    await check(
+      `${width}px shows ${shouldSwipe ? "both" : "no"} swipe hints`,
+      async () => assert.equal(hints, shouldSwipe ? 2 : 0),
+    );
+    await page.close();
+  }
+}
+
+// ---------------------------------------------------------------------------
+console.log("\nGallery photographs");
+{
+  const page = await (await browser.newContext({ ...devices["iPhone 13"] })).newPage();
+  const failed = [];
+  page.on("response", (r) => {
+    if (r.status() >= 400 && /image/.test(r.url())) failed.push(`${r.status()} ${r.url()}`);
+  });
+  await page.goto(URL, { waitUntil: "networkidle" });
+  await page.locator('ul[aria-label="Photographs of Dan and Tien"]').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(1500);
+
+  await check("every frame loads and is described", async () => {
+    const frames = await page.evaluate(() =>
+      [...document.querySelectorAll('ul[aria-label="Photographs of Dan and Tien"] img')].map(
+        (img) => ({ w: img.naturalWidth, alt: img.alt }),
+      ),
+    );
+    assert.equal(frames.length, 3);
+    frames.forEach((f, i) => {
+      assert.ok(f.w > 0, `frame ${i + 1} did not decode`);
+      assert.ok(f.alt.length > 10, `frame ${i + 1} needs real alt text`);
+    });
+    assert.equal(failed.length, 0, failed.join(", "));
+  });
+
+  await check("frames keep the photographs' own 2:3 ratio, uncropped", async () => {
+    const ratio = await page.evaluate(() => {
+      const box = document
+        .querySelector('ul[aria-label="Photographs of Dan and Tien"] img')
+        .parentElement.getBoundingClientRect();
+      return box.width / box.height;
+    });
+    assert.ok(Math.abs(ratio - 2 / 3) < 0.01, `ratio ${ratio.toFixed(3)}`);
+  });
+
+  await page.close();
+}
+
+// ---------------------------------------------------------------------------
 console.log("\nAdversarial form use");
 {
   // A deliberately slow server, so the in-flight window is wide enough to poke.

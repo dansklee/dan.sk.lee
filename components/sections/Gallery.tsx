@@ -11,7 +11,7 @@ export function Gallery() {
           {gallery.map((photo) => (
             <li key={photo.src} className="snap-center">
               <div
-                className="relative aspect-[3/4] w-full overflow-hidden bg-cream"
+                className="relative aspect-[2/3] w-full overflow-hidden bg-cream"
                 data-reveal="photo"
               >
                 <Image
@@ -19,6 +19,7 @@ export function Gallery() {
                   alt={photo.alt}
                   fill
                   sizes="(min-width: 768px) 30vw, 78vw"
+                  quality={85}
                   className="object-cover"
                 />
               </div>
