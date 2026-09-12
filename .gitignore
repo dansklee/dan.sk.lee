@@ -1,24 +1,13 @@
-# Dependencies
-node_modules/
-
-# Build output
-dist/
-*.tsbuildinfo
-
-# Test output
-coverage/
-
-# Environment
-.env
-.env.*
-!.env.example
+# Agent run artifacts
+.github/aw/logs/
+/tmp/gh-aw/
 
 # Editor / OS
 .DS_Store
 .idea/
 *.swp
 
-# Python (legacy script at repo root)
+# Python
 __pycache__/
 *.pyc
 .venv/

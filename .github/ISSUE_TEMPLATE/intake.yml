@@ -1,0 +1,74 @@
+name: Product Intake
+description: Request product work — a feature, a fix, a change. Gets scored and routed automatically.
+title: "[Intake] "
+labels: ["intake"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This goes through automated triage within a few minutes. You'll get a
+        verdict — Take, Team, Defer, Decline, or Needs Info — with the reasoning
+        shown, so you can see exactly why and push back if it's wrong.
+
+        Requests missing a user problem, evidence, or a cost of inaction come
+        back as **Needs Info**. Filling these in properly is faster than a round trip.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Who has this problem, and what is it?
+      description: A user and their problem — not a feature. "Admins can't tell which seats are unused" beats "add a seat report".
+      placeholder: |
+        Who: enterprise admins on annual plans
+        Problem: no way to see which purchased seats are actually being used, so renewals get negotiated blind
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: What's the evidence?
+      description: How many, how often, how they cope today. One customer is fine — say it's one. Link the Slack thread, the call notes, the ticket.
+      placeholder: |
+        How many: 4 of our 12 enterprise accounts raised this in QBRs since March
+        How often: every renewal cycle
+        Today they: export the user list and cross-reference login data by hand
+        Source: <Slack permalink / doc link>
+    validations:
+      required: true
+
+  - type: textarea
+    id: inaction
+    attributes:
+      label: What happens if we do nothing?
+      description: The cost of not doing this. If the honest answer is "not much", say that — it's useful.
+      placeholder: Renewal conversations stay anecdotal; we think it contributed to at least one downgrade.
+    validations:
+      required: true
+
+  - type: input
+    id: requester
+    attributes:
+      label: Who answers follow-up questions?
+      description: A person, not a channel.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Any solution in mind? (optional)
+      description: Useful context, but the problem above is what gets scored. Leave blank if you don't have one.
+
+  - type: input
+    id: deadline
+    attributes:
+      label: Is there a real date? (optional)
+      description: A contract, a launch, a commitment already made. "ASAP" is not a date.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Source context (optional)
+      description: Paste the Slack thread, meeting note, or customer email this came from. Include a permalink.
+      render: markdown
