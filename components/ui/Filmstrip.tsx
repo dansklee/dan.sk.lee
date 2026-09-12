@@ -22,14 +22,18 @@ export function Filmstrip({
   label,
   columns = 3,
   hint = "Swipe for more",
-  seamless = true,
+  gapClass = "gap-0",
 }: {
   children: React.ReactNode;
   label: string;
   columns?: 2 | 3;
   hint?: string;
-  /** Photographs butt edge to edge; framed cards need room to read as cards. */
-  seamless?: boolean;
+  /**
+   * Grid gap. Given as a percentage of the container so it holds the comp's
+   * proportion at any width, since the comps fix the gap relative to the
+   * frame rather than in pixels.
+   */
+  gapClass?: string;
 }) {
   const stripRef = useRef<HTMLUListElement>(null);
   const [thumb, setThumb] = useState<{ width: number; offset: number } | null>(
@@ -119,14 +123,13 @@ export function Filmstrip({
   }, [update]);
 
   const gridAtMd = columns === 2 ? "md:grid-cols-2" : "md:grid-cols-3";
-  const gap = seamless ? "gap-0" : "gap-4 md:gap-10";
 
   return (
     <div>
       <ul
         ref={stripRef}
         aria-label={label}
-        className={`-mx-5 grid ${gap} snap-x snap-mandatory auto-cols-[78%] grid-flow-col overflow-x-auto overscroll-x-contain px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-auto md:grid-flow-row ${gridAtMd} md:auto-cols-auto md:overflow-x-visible md:px-0`}
+        className={`-mx-5 grid ${gapClass} snap-x snap-mandatory auto-cols-[78%] grid-flow-col overflow-x-auto overscroll-x-contain px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-auto md:grid-flow-row ${gridAtMd} md:auto-cols-auto md:overflow-x-visible md:px-0`}
       >
         {children}
       </ul>

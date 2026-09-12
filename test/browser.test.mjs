@@ -415,15 +415,49 @@ console.log("\nGallery photographs");
     assert.equal(failed.length, 0, failed.join(", "));
   });
 
-  await check("frames keep the photographs' own 2:3 ratio, uncropped", async () => {
+  await check("frames keep the comp's 215x279 ratio", async () => {
     const ratio = await page.evaluate(() => {
       const box = document
         .querySelector('ul[aria-label="Photographs of Dan and Tien"] img')
         .parentElement.getBoundingClientRect();
       return box.width / box.height;
     });
-    assert.ok(Math.abs(ratio - 2 / 3) < 0.01, `ratio ${ratio.toFixed(3)}`);
+    assert.ok(Math.abs(ratio - 215 / 279) < 0.01, `ratio ${ratio.toFixed(3)}, comp is 0.771`);
   });
+
+  await page.close();
+}
+
+{
+  // The comps are a 1087px-wide design, so the grid proportions are checked at
+  // that width. Phones use a tighter gap so the next frame still peeks.
+  const page = await (
+    await browser.newContext({ viewport: { width: 1087, height: 900 } })
+  ).newPage();
+  await page.goto(URL, { waitUntil: "networkidle" });
+  await page.locator('ul[aria-label="Photographs of Dan and Tien"]').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(1500);
+
+  const geometry = await page.evaluate(() => {
+    const li = [...document.querySelectorAll('ul[aria-label="Photographs of Dan and Tien"] li')];
+    const rects = li.map((el) => el.getBoundingClientRect());
+    return {
+      width: rects[0].width,
+      gap: rects[1].left - rects[0].right,
+      row: rects[2].right - rects[0].left,
+    };
+  });
+
+  // Comp: three 215px frames, 93px apart, spanning 829 of 1087px.
+  await check("frame width matches the comp", async () =>
+    assert.ok(Math.abs(geometry.width - 215) < 8, `${geometry.width.toFixed(0)}px vs 215px`),
+  );
+  await check("gap matches the comp", async () =>
+    assert.ok(Math.abs(geometry.gap - 93) < 8, `${geometry.gap.toFixed(0)}px vs 93px`),
+  );
+  await check("the row spans what the comp's row spans", async () =>
+    assert.ok(Math.abs(geometry.row - 829) < 16, `${geometry.row.toFixed(0)}px vs 829px`),
+  );
 
   await page.close();
 }

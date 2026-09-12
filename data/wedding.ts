@@ -115,14 +115,19 @@ export const gallery = [
   {
     src: "/images/gallery-1.jpg",
     alt: "Dan and Tien holding their French bulldog between them, Pasadena City Hall behind",
+    /** Frames are wider than the photographs, so `position` chooses what the
+     *  crop keeps. The comp keeps the bottom of every frame. */
+    position: "center 60%",
   },
   {
     src: "/images/gallery-2.jpg",
     alt: "Dan twirling Tien under his arm on a curved staircase",
+    position: "center 65%",
   },
   {
     src: "/images/gallery-3.jpg",
     alt: "Dan and Tien leaning against a fountain, their dog lying at their feet",
+    position: "center 70%",
   },
 ] as const;
 

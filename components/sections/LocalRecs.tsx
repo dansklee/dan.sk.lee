@@ -26,7 +26,7 @@ export function LocalRecs() {
         <Filmstrip
           label="Local recommendations"
           columns={2}
-          seamless={false}
+          gapClass="gap-4 md:gap-[8.4%]"
           hint="Swipe for more"
         >
           {recommendations.map((place) => (
