@@ -8,11 +8,8 @@ export function Hero() {
       aria-labelledby="hero-heading"
     >
       <div
-        className="absolute inset-0 bg-cover"
-        style={{
-          backgroundImage: "url('/images/bg-hero.jpg')",
-          backgroundPosition: "center 18%",
-        }}
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/bg-hero.jpg')" }}
         aria-hidden="true"
       />
       <div className="photo-scrim absolute inset-0" aria-hidden="true" />

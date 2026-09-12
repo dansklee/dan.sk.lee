@@ -75,7 +75,7 @@ body {
 
 /* Photographic sections are darkened so light type stays legible on any crop. */
 .photo-scrim {
-  background-color: rgba(38, 34, 26, 0.70);
+  background-color: rgba(38, 34, 26, 0.25);
 }
 
 /*
