@@ -14,18 +14,18 @@ export function Hero() {
       />
       <div className="photo-scrim absolute inset-0" aria-hidden="true" />
 
-      <div className="relative px-6 pb-24 pt-16 text-center text-cream-light">
+      <div className="relative px-5 pb-24 pt-16 text-center text-cream-light">
         <h1
           id="hero-heading"
-          className="font-script text-6xl leading-[1.15] sm:text-7xl md:text-8xl"
+          className="font-script text-step-4 leading-[1.1]"
         >
           {wedding.couple}
         </h1>
 
-        <p className="tracking-label mt-5 text-xs sm:text-sm">
+        <p className="tracking-label mt-5 text-step--1">
           {wedding.location}
         </p>
-        <p className="tracking-label mt-3 font-mono text-[0.65rem] sm:text-xs">
+        <p className="tracking-label mt-3 font-mono text-step--2">
           {wedding.dateLabel}
         </p>
 

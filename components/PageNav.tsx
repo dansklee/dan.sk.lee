@@ -51,9 +51,9 @@ export function PageNav({ pages }: { pages: PageRef[] }) {
   return (
     <nav
       aria-label="Page sections"
-      className="pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-4"
+      className="pointer-events-none fixed inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-50 flex justify-center px-4"
     >
-      <ul className="pointer-events-auto flex items-center gap-3 rounded-full bg-white/90 px-6 py-4 shadow-[0_8px_30px_rgba(40,36,28,0.18)] backdrop-blur">
+      <ul className="pointer-events-auto flex items-center gap-1 rounded-full bg-white/90 px-3 shadow-[0_8px_30px_rgba(40,36,28,0.18)] backdrop-blur">
         {pages.map((page) => {
           const isActive = page.id === activeId;
           return (
@@ -63,12 +63,16 @@ export function PageNav({ pages }: { pages: PageRef[] }) {
                 onClick={() => goTo(page.id)}
                 aria-label={page.label}
                 aria-current={isActive ? "true" : undefined}
-                className={`block h-3 rounded-full transition-all duration-300 ${
-                  isActive
-                    ? "w-9 bg-ink-soft"
-                    : "w-3 bg-ink/25 hover:bg-ink/45"
-                }`}
-              />
+                /* The dot is small by design, so the button carries the 48px
+                   target around it rather than shrinking to the dot. */
+                className="flex min-h-tap min-w-[1.75rem] items-center justify-center"
+              >
+                <span
+                  className={`block h-3 rounded-full transition-all duration-300 ${
+                    isActive ? "w-9 bg-ink-soft" : "w-3 bg-ink/25"
+                  }`}
+                />
+              </button>
             </li>
           );
         })}

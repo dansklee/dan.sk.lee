@@ -14,16 +14,23 @@ export function Venues() {
       />
       <div className="photo-scrim absolute inset-0" aria-hidden="true" />
 
-      <div className="relative mx-auto max-w-prose px-6 py-24 text-center text-cream-light sm:py-32">
+      <div className="relative mx-auto max-w-prose px-5 py-20 text-center text-cream-light sm:py-28">
         {venues.map((venue, index) => (
           <div key={venue.name}>
             {index > 0 && <Ornament className="my-12 text-cream-light/70" />}
 
-            <h2 className="font-script text-4xl sm:text-5xl">{venue.name}</h2>
+            <h2
+              className="font-script text-[calc(var(--step-2)*var(--script-bump))]"
+              data-reveal
+            >
+              {venue.name}
+            </h2>
 
-            <p className="mt-5 text-lg leading-relaxed">{venue.venue}</p>
+            <p className="mt-5 text-step-1 leading-relaxed" data-reveal>
+              {venue.venue}
+            </p>
 
-            <address className="mt-6 not-italic leading-relaxed opacity-90">
+            <address className="mt-6 not-italic leading-relaxed opacity-90" data-reveal>
               {venue.address.map((line) => (
                 <span key={line} className="block">
                   {line}
@@ -32,7 +39,7 @@ export function Venues() {
             </address>
 
             {venue.note && (
-              <p className="mx-auto mt-6 max-w-sm leading-relaxed opacity-90">
+              <p className="mx-auto mt-6 max-w-sm leading-relaxed opacity-90" data-reveal>
                 {venue.note}
               </p>
             )}

@@ -28,8 +28,28 @@ const config: Config = {
         script: ["var(--font-script)", "cursive"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
+      fontSize: {
+        "step--2": "var(--step--2)",
+        "step--1": "var(--step--1)",
+        "step-0": "var(--step-0)",
+        "step-1": "var(--step-1)",
+        "step-2": "var(--step-2)",
+        "step-3": "var(--step-3)",
+        "step-3-long": "var(--step-3-long)",
+        "step-4": "var(--step-4)",
+      },
       maxWidth: {
         prose: "34rem",
+        content: "68rem",
+      },
+      transitionTimingFunction: {
+        "out-cubic": "var(--ease-out)",
+      },
+      minHeight: {
+        tap: "var(--tap)",
+      },
+      minWidth: {
+        tap: "var(--tap)",
       },
     },
   },

@@ -39,3 +39,15 @@ export type ApiResult<T> =
 export interface RsvpAccepted {
   attending: Attending;
 }
+
+export type YesNo = "yes" | "no";
+
+/** What the form holds while it is being filled in. */
+export interface RsvpFormState {
+  names: string;
+  attending: Attending | null;
+  ceremony: YesNo | null;
+  reception: YesNo | null;
+  dietary: YesNo | null;
+  dietaryNotes: string;
+}

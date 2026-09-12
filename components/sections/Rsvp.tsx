@@ -14,14 +14,14 @@ export function Rsvp() {
       />
       <div className="photo-scrim absolute inset-0" aria-hidden="true" />
 
-      <div className="relative px-5 py-16 sm:py-20">
+      <div className="relative px-5 py-14 sm:py-20">
         <h2
           id="rsvp-heading"
-          className="text-center font-display text-5xl tracking-[0.1em] text-cream-light sm:text-6xl"
+          className="text-center font-display text-step-3 tracking-[0.1em] text-cream-light"
         >
           {rsvpCopy.title}
         </h2>
-        <p className="mt-3 text-center text-sm text-cream-light/90">
+        <p className="mt-3 text-center text-step--1 text-cream-light/90">
           {rsvpCopy.deadline}
         </p>
 

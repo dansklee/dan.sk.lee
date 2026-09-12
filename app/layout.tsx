@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import {
   Cormorant_Garamond,
   Courier_Prime,
+  EB_Garamond,
   Pinyon_Script,
-  Playfair_Display,
 } from "next/font/google";
 
 import { wedding } from "@/data/wedding";
@@ -16,7 +16,7 @@ const body = Cormorant_Garamond({
   display: "swap",
 });
 
-const display = Playfair_Display({
+const display = EB_Garamond({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--font-display",
@@ -50,6 +50,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#4E5139",
+  // Lets the page paint into the notch area; safe-area insets keep the
+  // navigator clear of the home indicator.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

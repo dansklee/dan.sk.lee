@@ -28,19 +28,24 @@ function ArchedTitle({ text }: { text: string }) {
 
 export function OurStory() {
   return (
-    <section className="bg-cream px-5 py-20 sm:py-28" aria-label={story.title}>
+    <section className="bg-cream px-5 py-16 sm:py-24" aria-label={story.title}>
       <div className="mx-auto w-full max-w-[26rem]">
-        <div className="rounded-[13rem] border border-olive-light/70 bg-cream-paper px-8 py-14 text-center sm:px-12 sm:py-16">
+        <div
+          className="rounded-[13rem] border border-olive-light/70 bg-cream-paper px-7 py-12 text-center sm:px-12 sm:py-16"
+          data-reveal
+        >
           <ArchedTitle text={story.title} />
 
-          <div className="mt-6 space-y-5 text-[0.95rem] leading-relaxed text-ink-soft">
+          <div className="mt-6 space-y-5 text-step-0 leading-relaxed text-ink-soft">
             {story.paragraphs.map((paragraph) => (
               <p key={paragraph.slice(0, 24)}>{paragraph}</p>
             ))}
           </div>
 
-          <p className="mt-8 text-[0.95rem] text-ink-soft">{story.signOff}</p>
-          <p className="mt-4 font-script text-3xl text-ink">{wedding.couple}</p>
+          <p className="mt-8 text-step-0 text-ink-soft">{story.signOff}</p>
+          <p className="mt-4 font-script text-[calc(var(--step-2)*var(--script-bump))] text-ink">
+            {wedding.couple}
+          </p>
         </div>
       </div>
     </section>

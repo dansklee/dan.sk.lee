@@ -3,10 +3,11 @@ import { schedule } from "@/data/wedding";
 
 export function TheDay() {
   return (
-    <section className="bg-olive px-5 py-20 sm:py-28" aria-labelledby="the-day-heading">
+    <section className="bg-olive px-5 py-16 sm:py-24" aria-labelledby="the-day-heading">
       <h2
         id="the-day-heading"
-        className="text-center font-display text-3xl font-semibold tracking-[0.12em] text-cream-light sm:text-4xl"
+        className="text-center font-display text-step-3 font-semibold tracking-[0.12em] text-cream-light"
+        data-reveal
       >
         THE DAY
       </h2>
@@ -49,8 +50,8 @@ export function TheDay() {
                 }`}
               >
                 <Icon className="h-16 w-16 text-cream-light/85 sm:h-20 sm:w-20" />
-                <p className="tracking-label mt-3 text-[0.6rem]">{item.time}</p>
-                <p className="font-script text-2xl leading-tight sm:text-[1.75rem]">
+                <p className="tracking-label mt-3 text-step--2">{item.time}</p>
+                <p className="font-script text-[calc(var(--step-1)*var(--script-bump))] leading-tight">
                   {item.label}
                 </p>
               </div>

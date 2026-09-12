@@ -2,44 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  Fluid scale and motion tokens carried over from the prototype's design system
+  (see docs/wedding-site/prototype-notes.md). Sizes interpolate with viewport
+  width via clamp() instead of stepping at breakpoints, so phones between the
+  common widths are not an afterthought.
+*/
 :root {
   color-scheme: light;
+
+  --step--2: 0.688rem;
+  --step--1: 0.813rem;
+  --step-0: 0.938rem;
+  --step-1: clamp(1.05rem, 0.98rem + 0.35vw, 1.2rem);
+  --step-2: clamp(1.35rem, 1.15rem + 1vw, 1.75rem);
+  --step-3: clamp(2.3rem, 1.6rem + 3.4vw, 3.9rem);
+  /* For long single-word headings, which cannot wrap out of trouble. */
+  --step-3-long: clamp(1.5rem, 0.9rem + 3vw, 3.9rem);
+  --step-4: clamp(3.6rem, 2.2rem + 6.8vw, 7.6rem);
+
+  /* Pinyon Script renders about 25% smaller than a typical face at the same
+     pixel size, so script elements carry a multiplier. */
+  --script-bump: 1.25;
+
+  --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+  --micro: 260ms;
+  --reveal: 800ms;
+
+  /* Minimum comfortable touch target. */
+  --tap: 48px;
 }
 
 html {
   scroll-behavior: smooth;
+  /* Anchored sections should not land under the fixed navigator. */
+  scroll-padding-bottom: 6rem;
 }
 
 body {
   background-color: theme("colors.cream.DEFAULT");
   color: theme("colors.ink.DEFAULT");
   font-family: theme("fontFamily.body");
+  font-size: var(--step-0);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+  /* Stop a wide child from letting the whole page slide sideways. */
+  overflow-x: hidden;
 }
 
 @layer components {
-  /* Letterspaced small caps used for eyebrows and addresses. */
   .tracking-label {
     letter-spacing: 0.22em;
     text-transform: uppercase;
   }
 
-  /* The hairline-and-diamond divider between blocks in the comps. */
   .rule-ornament {
     display: flex;
     align-items: center;
@@ -60,4 +76,53 @@ body {
 /* Photographic sections are darkened so light type stays legible on any crop. */
 .photo-scrim {
   background-color: rgba(38, 34, 26, 0.55);
+}
+
+/*
+  Scroll reveal. The hidden state only exists once the script has an observer
+  and the visitor has not asked for reduced motion, so nothing can be left
+  permanently invisible if JavaScript never runs.
+*/
+.has-reveal [data-reveal] {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.has-reveal [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--reveal) var(--ease-out),
+    transform var(--reveal) var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+/* Photographs settle rather than slide. */
+.has-reveal [data-reveal="photo"] {
+  transform: scale(1.04);
+}
+
+.has-reveal [data-reveal="photo"].is-in {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Hover affordances would stick on touch, where there is no pointer to leave. */
+@media (hover: hover) {
+  .hover-dim:hover {
+    opacity: 0.85;
+  }
 }

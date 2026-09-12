@@ -1,62 +1,310 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 
-import { submitRsvp } from "@/lib/rsvp/client";
-import type { Attending, RsvpSubmission } from "@/lib/rsvp/types";
 import { rsvpCopy } from "@/data/wedding";
+import { submitRsvp } from "@/lib/rsvp/client";
+import {
+  FIELD_ORDER,
+  firstName,
+  validateRsvp,
+  type RsvpErrors,
+  type RsvpFieldKey,
+} from "@/lib/rsvp/validate";
+import type { RsvpFormState, YesNo } from "@/lib/rsvp/types";
 
 const ENDPOINT = process.env.NEXT_PUBLIC_RSVP_ENDPOINT ?? "";
 
-type Status = "idle" | "sending" | "sent";
+const EMPTY: RsvpFormState = {
+  names: "",
+  attending: null,
+  ceremony: null,
+  reception: null,
+  dietary: null,
+  dietaryNotes: "",
+};
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+const YES_NO: Array<{ value: YesNo; label: string }> = [
+  { value: "yes", label: "Yes" },
+  { value: "no", label: "No" },
+];
+
+const toBool = (value: YesNo | null) => (value === null ? null : value === "yes");
+
+function ErrorLine({ id, message }: { id: string; message?: string }) {
   return (
-    <div className="mt-6 first:mt-0">
-      <p className="text-sm text-ink-soft">{label}</p>
-      <div className="mt-2">{children}</div>
+    <p
+      id={id}
+      hidden={!message}
+      className="mt-2 text-step--1 text-[#8a3a24]"
+    >
+      {message}
+    </p>
+  );
+}
+
+/**
+ * A collapsed branch stays in the DOM but goes `inert`: a hidden panel that
+ * still holds focusable inputs traps keyboard users in invisible fields, and a
+ * screen reader would happily announce a question that is not on screen.
+ */
+function Branch({ open, children }: { open: boolean; children: React.ReactNode }) {
+  return (
+    <div inert={!open} hidden={!open}>
+      {children}
     </div>
   );
 }
 
-/** The full-width tinted bars the comps use instead of visible radio dots. */
-function ChoiceGroup<T extends string>({
+export function RsvpForm() {
+  const namesId = useId();
+  const notesId = useId();
+
+  const formRef = useRef<HTMLFormElement>(null);
+  const [state, setState] = useState<RsvpFormState>(EMPTY);
+  const [errors, setErrors] = useState<RsvpErrors>({});
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState<RsvpFormState | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  /** Errors only start following keystrokes after the first failed submit. */
+  const liveErrors = useRef(false);
+
+  const accepting = state.attending === "accepts";
+  const needsNotes = accepting && state.dietary === "yes";
+
+  function update(patch: Partial<RsvpFormState>) {
+    const next = { ...state, ...patch };
+    setState(next);
+    if (!liveErrors.current) return;
+
+    // Errors follow keystrokes only once something has been reported, and only
+    // for questions already flagged — a branch that just unfolded should not
+    // arrive pre-scolded for answers the guest has not had a chance to give.
+    const fresh = validateRsvp(next).errors;
+    setErrors((shown) =>
+      Object.fromEntries(
+        Object.keys(shown)
+          .filter((key) => fresh[key as RsvpFieldKey])
+          .map((key) => [key, fresh[key as RsvpFieldKey]]),
+      ),
+    );
+  }
+
+  function focusFirstError(found: RsvpErrors) {
+    const firstBad = FIELD_ORDER.find((key) => found[key]);
+    if (!firstBad) return;
+
+    const form = formRef.current;
+    const target =
+      form?.querySelector<HTMLElement>(`[data-field="${firstBad}"] input`) ?? null;
+
+    target?.focus({ preventScroll: true });
+    form
+      ?.querySelector(`[data-field="${firstBad}"]`)
+      ?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+
+  async function onSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (sending) return;
+
+    setFormError(null);
+    const { valid, errors: found } = validateRsvp(state);
+    liveErrors.current = true;
+    setErrors(found);
+
+    if (!valid) {
+      focusFirstError(found);
+      return;
+    }
+
+    setSending(true);
+    const result = await submitRsvp(
+      {
+        names: state.names.trim(),
+        attending: state.attending!,
+        ceremony: accepting ? toBool(state.ceremony) : null,
+        reception: accepting ? toBool(state.reception) : null,
+        dietaryRestrictions: accepting ? toBool(state.dietary) : null,
+        dietaryNotes: needsNotes ? state.dietaryNotes.trim() : "",
+      },
+      ENDPOINT,
+    );
+    setSending(false);
+
+    if (result.ok) {
+      setSent(state);
+      return;
+    }
+    setFormError(result.message);
+  }
+
+  if (sent) {
+    const coming = sent.attending === "accepts";
+    const name = firstName(sent.names);
+
+    return (
+      <div
+        className="bg-cream-paper px-7 py-16 text-center sm:px-10"
+        role="status"
+        tabIndex={-1}
+      >
+        <p className="font-script text-[calc(var(--step-2)*var(--script-bump))] text-ink">
+          {coming ? "See you there" : "Thank you for telling us"}
+        </p>
+        <p className="mt-4 text-step--1 leading-relaxed text-ink-soft">
+          {coming
+            ? `We've got you down${name ? `, ${name}` : ""}. We can't wait to celebrate with you.`
+            : `We'll miss you${name ? `, ${name}` : ""}. Thank you for letting us know.`}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form
+      ref={formRef}
+      onSubmit={onSubmit}
+      noValidate
+      className="bg-cream-paper px-6 py-8 text-left sm:px-10 sm:py-11"
+    >
+      <p className="text-step-0 leading-snug text-ink">{rsvpCopy.intro}</p>
+
+      <div className="mt-7" data-field="names">
+        <label htmlFor={namesId} className="block text-step--1 text-ink-soft">
+          Your name(s)
+        </label>
+        <input
+          id={namesId}
+          type="text"
+          value={state.names}
+          onChange={(event) => update({ names: event.target.value })}
+          autoComplete="name"
+          maxLength={200}
+          aria-invalid={errors.names ? true : undefined}
+          aria-describedby={errors.names ? `${namesId}-error` : undefined}
+          /* Never below 16px: iOS Safari zooms the viewport otherwise, and does
+             not zoom back out. */
+          className="mt-2 min-h-tap w-full border border-ink/25 bg-white px-3 text-[16px] text-ink outline-none focus:border-olive focus:ring-1 focus:ring-olive"
+        />
+        <ErrorLine id={`${namesId}-error`} message={errors.names} />
+      </div>
+
+      <Choice
+        field="attending"
+        legend="Will you be attending our wedding?"
+        value={state.attending}
+        error={errors.attending}
+        onChange={(value) => update({ attending: value })}
+        options={[
+          { value: "accepts", label: "Joyfully accepts" },
+          { value: "declines", label: "Regretfully declines" },
+        ]}
+      />
+
+      {/* The comp shows every question at once; they only apply to guests who
+          are coming, so they unfold once the invitation is accepted. */}
+      <Branch open={accepting}>
+        <Choice
+          field="ceremony"
+          legend="Attending ceremony?"
+          value={state.ceremony}
+          error={errors.ceremony}
+          onChange={(value) => update({ ceremony: value })}
+          options={YES_NO}
+        />
+        <Choice
+          field="reception"
+          legend="Attending reception?"
+          value={state.reception}
+          error={errors.reception}
+          onChange={(value) => update({ reception: value })}
+          options={YES_NO}
+        />
+        <Choice
+          field="dietary"
+          legend="Any dietary restrictions?"
+          value={state.dietary}
+          error={errors.dietary}
+          onChange={(value) => update({ dietary: value })}
+          options={YES_NO}
+        />
+
+        <Branch open={needsNotes}>
+          <div className="mt-6" data-field="dietaryNotes">
+            <label htmlFor={notesId} className="block text-step--1 text-ink-soft">
+              If yes, please specify here.
+            </label>
+            <input
+              id={notesId}
+              type="text"
+              value={state.dietaryNotes}
+              onChange={(event) => update({ dietaryNotes: event.target.value })}
+              maxLength={1000}
+              aria-invalid={errors.dietaryNotes ? true : undefined}
+              className="mt-2 min-h-tap w-full border border-ink/25 bg-white px-3 text-[16px] text-ink outline-none focus:border-olive focus:ring-1 focus:ring-olive"
+            />
+            <ErrorLine id={`${notesId}-error`} message={errors.dietaryNotes} />
+          </div>
+        </Branch>
+      </Branch>
+
+      {formError && (
+        <p role="alert" className="mt-6 text-step--1 text-[#8a3a24]">
+          {formError}
+        </p>
+      )}
+
+      <button
+        type="submit"
+        disabled={sending}
+        className="tracking-label hover-dim mt-8 min-h-tap w-full bg-olive px-4 text-step--2 text-cream-light transition-opacity disabled:opacity-60"
+      >
+        {sending ? "Sending" : "Submit"}
+      </button>
+
+      <p className="mt-4 text-center text-step--2 leading-relaxed text-ink-soft/80">
+        {rsvpCopy.finePrint}
+      </p>
+    </form>
+  );
+}
+
+/** Full-width tinted bars, as the comps draw them rather than radio dots. */
+function Choice<T extends string>({
+  field,
   legend,
-  name,
   value,
   options,
+  error,
   onChange,
 }: {
+  field: RsvpFieldKey;
   legend: string;
-  name: string;
   value: T | null;
   options: Array<{ value: T; label: string }>;
+  error?: string;
   onChange: (value: T) => void;
 }) {
   return (
-    <fieldset className="mt-6">
-      <legend className="text-sm text-ink-soft">{legend}</legend>
+    <fieldset className="mt-6" data-field={field}>
+      <legend className="text-step--1 text-ink-soft">{legend}</legend>
       <div className="mt-2 space-y-2">
         {options.map((option) => {
           const selected = value === option.value;
           return (
             <label
               key={option.value}
-              className={`flex cursor-pointer items-center rounded-sm px-3 py-2 text-sm transition-colors ${
+              className={`flex min-h-tap cursor-pointer items-center px-3 text-step--1 transition-colors duration-[260ms] ${
                 selected
                   ? "bg-olive text-cream-light"
-                  : "bg-ink/[0.055] text-ink-soft hover:bg-ink/[0.09]"
+                  : "bg-ink/[0.055] text-ink-soft"
               }`}
             >
               <input
                 type="radio"
-                name={name}
+                name={field}
                 value={option.value}
                 checked={selected}
                 onChange={() => onChange(option.value)}
@@ -67,190 +315,7 @@ function ChoiceGroup<T extends string>({
           );
         })}
       </div>
+      <ErrorLine id={`${field}-error`} message={error} />
     </fieldset>
-  );
-}
-
-const YES_NO = [
-  { value: "yes" as const, label: "Yes" },
-  { value: "no" as const, label: "No" },
-];
-
-type YesNo = "yes" | "no";
-
-const toBool = (value: YesNo | null) => (value === null ? null : value === "yes");
-
-export function RsvpForm() {
-  const namesId = useId();
-  const notesId = useId();
-
-  const [names, setNames] = useState("");
-  const [attending, setAttending] = useState<Attending | null>(null);
-  const [ceremony, setCeremony] = useState<YesNo | null>(null);
-  const [reception, setReception] = useState<YesNo | null>(null);
-  const [dietary, setDietary] = useState<YesNo | null>(null);
-  const [dietaryNotes, setDietaryNotes] = useState("");
-
-  const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState<string | null>(null);
-
-  const accepting = attending === "accepts";
-
-  async function onSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    if (status === "sending") return;
-
-    setError(null);
-
-    if (names.trim().length < 2) {
-      setError("Please tell us who is replying.");
-      return;
-    }
-    if (attending === null) {
-      setError("Please let us know if you can make it.");
-      return;
-    }
-    if (accepting && (ceremony === null || reception === null || dietary === null)) {
-      setError("Please answer the remaining questions.");
-      return;
-    }
-    if (accepting && dietary === "yes" && dietaryNotes.trim().length === 0) {
-      setError("Please tell us about your dietary restrictions.");
-      return;
-    }
-
-    const submission: RsvpSubmission = {
-      names: names.trim(),
-      attending,
-      ceremony: accepting ? toBool(ceremony) : null,
-      reception: accepting ? toBool(reception) : null,
-      dietaryRestrictions: accepting ? toBool(dietary) : null,
-      dietaryNotes: accepting && dietary === "yes" ? dietaryNotes.trim() : "",
-    };
-
-    setStatus("sending");
-    const result = await submitRsvp(submission, ENDPOINT);
-
-    if (result.ok) {
-      setStatus("sent");
-      return;
-    }
-
-    setStatus("idle");
-    setError(result.message);
-  }
-
-  if (status === "sent") {
-    return (
-      <div className="bg-cream-paper px-8 py-16 text-center sm:px-12">
-        <p className="font-script text-4xl text-ink">Thank you</p>
-        <p className="mt-4 text-sm leading-relaxed text-ink-soft">
-          {accepting
-            ? "We have your reply, and we cannot wait to celebrate with you."
-            : "We have your reply. You will be missed."}
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <form
-      onSubmit={onSubmit}
-      noValidate
-      className="bg-cream-paper px-7 py-9 text-left sm:px-10 sm:py-11"
-    >
-      <p className="text-[0.95rem] leading-snug text-ink">{rsvpCopy.intro}</p>
-
-      <div className="mt-7">
-        <Field label="Your name(s)">
-          <input
-            id={namesId}
-            type="text"
-            value={names}
-            onChange={(event) => setNames(event.target.value)}
-            autoComplete="name"
-            maxLength={200}
-            className="w-full border border-ink/25 bg-white px-3 py-2 text-sm text-ink outline-none focus:border-olive focus:ring-1 focus:ring-olive"
-          />
-        </Field>
-      </div>
-
-      <ChoiceGroup
-        legend="Will you be attending our wedding?"
-        name="attending"
-        value={attending}
-        onChange={setAttending}
-        options={[
-          { value: "accepts", label: "Joyfully accepts" },
-          { value: "declines", label: "Regretfully declines" },
-        ]}
-      />
-
-      {/* The comp shows every question at once; they only apply to guests who
-          are coming, so they appear once the invitation is accepted. */}
-      {accepting && (
-        <>
-          <ChoiceGroup
-            legend="Attending ceremony?"
-            name="ceremony"
-            value={ceremony}
-            onChange={setCeremony}
-            options={YES_NO}
-          />
-          <ChoiceGroup
-            legend="Attending reception?"
-            name="reception"
-            value={reception}
-            onChange={setReception}
-            options={YES_NO}
-          />
-          <ChoiceGroup
-            legend="Any dietary restrictions?"
-            name="dietary"
-            value={dietary}
-            onChange={setDietary}
-            options={YES_NO}
-          />
-
-          {dietary === "yes" && (
-            <Field label="If yes, please specify here.">
-              <input
-                id={notesId}
-                type="text"
-                value={dietaryNotes}
-                onChange={(event) => setDietaryNotes(event.target.value)}
-                maxLength={1000}
-                className="w-full border border-ink/25 bg-white px-3 py-2 text-sm text-ink outline-none focus:border-olive focus:ring-1 focus:ring-olive"
-              />
-            </Field>
-          )}
-        </>
-      )}
-
-      {error && (
-        <p role="alert" className="mt-6 text-sm text-[#8a3d2f]">
-          {error}
-        </p>
-      )}
-
-      <button
-        type="submit"
-        disabled={status === "sending"}
-        className="tracking-label mt-8 w-full rounded-sm bg-olive px-4 py-3 text-[0.65rem] text-cream-light transition-opacity hover:opacity-90 disabled:opacity-60"
-      >
-        {status === "sending" ? "Sending" : "Submit"}
-      </button>
-
-      <p className="mt-4 text-center text-[0.7rem] leading-relaxed text-ink-soft/80">
-        {rsvpCopy.finePrint}
-        <br />
-        <a
-          href={rsvpCopy.finePrintLinkHref}
-          className="underline underline-offset-2"
-        >
-          {rsvpCopy.finePrintLinkLabel}
-        </a>
-      </p>
-    </form>
   );
 }

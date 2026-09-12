@@ -1,25 +1,31 @@
 import Image from "next/image";
 
+import { Filmstrip } from "@/components/ui/Filmstrip";
 import { gallery } from "@/data/wedding";
 
 export function Gallery() {
   return (
-    <section className="bg-cream-light px-6 py-20 sm:py-28" aria-label="Photographs">
-      <ul className="mx-auto grid max-w-5xl gap-6 sm:grid-cols-3 sm:gap-8">
-        {gallery.map((photo) => (
-          <li key={photo.src}>
-            <div className="relative aspect-[4/5] w-full overflow-hidden bg-cream">
-              <Image
-                src={photo.src}
-                alt={photo.alt}
-                fill
-                sizes="(min-width: 640px) 30vw, 90vw"
-                className="object-cover"
-              />
-            </div>
-          </li>
-        ))}
-      </ul>
+    <section className="bg-cream-light px-5 py-16 text-ink sm:py-24" aria-label="Photographs">
+      <div className="mx-auto max-w-content">
+        <Filmstrip label="Photographs of Dan and Tien" columns={3}>
+          {gallery.map((photo) => (
+            <li key={photo.src} className="snap-center">
+              <div
+                className="relative aspect-[3/4] w-full overflow-hidden bg-cream"
+                data-reveal="photo"
+              >
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  fill
+                  sizes="(min-width: 768px) 30vw, 78vw"
+                  className="object-cover"
+                />
+              </div>
+            </li>
+          ))}
+        </Filmstrip>
+      </div>
     </section>
   );
 }

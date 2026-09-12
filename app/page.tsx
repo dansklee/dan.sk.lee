@@ -1,4 +1,5 @@
 import { PageNav, type PageRef } from "@/components/PageNav";
+import { Reveal } from "@/components/ui/Reveal";
 import { Closing } from "@/components/sections/Closing";
 import { Details } from "@/components/sections/Details";
 import { Gallery } from "@/components/sections/Gallery";
@@ -46,6 +47,7 @@ export default function Home() {
       </main>
 
       <PageNav pages={pages} />
+      <Reveal />
     </>
   );
 }
