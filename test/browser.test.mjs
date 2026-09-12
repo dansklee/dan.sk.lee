@@ -3,11 +3,12 @@
  * guest sees when the server answers oddly, and form accessibility.
  *
  *   npm i -D playwright && npx playwright install chromium   (once)
- *   npm run build && npm start -- -p 3400 &
- *   RSVP_ENDPOINT=https://rsvp.test/exec npm run test:browser
+ *   NEXT_PUBLIC_RSVP_ENDPOINT=https://rsvp.test/exec npm run build
+ *   npm start -- -p 3400 &
+ *   PORT=3400 npm run test:browser
  *
- * Build with NEXT_PUBLIC_RSVP_ENDPOINT set to the same value, so the submit
- * checks have a request to intercept.
+ * The endpoint is baked in at build time, which is why it goes on the build
+ * command; the submit checks intercept requests to it.
  */
 import { chromium, devices } from "playwright";
 import assert from "node:assert";
@@ -189,6 +190,14 @@ await check("a 200 with an unexpected body is not a success", async () => {
   assert.ok(/went wrong/.test(body), "expected a visible error, got silence");
 });
 
+await check("a bare {ok:true} with no data is not a success", async () => {
+  // A stale deployment or the wrong URL can answer this. Thanking a guest for
+  // a reply nobody recorded is worse than showing an error.
+  const body = await submit(json({ ok: true }));
+  assert.ok(!/See you there|Thank you for telling us/.test(body), "confirmed a reply that was never recorded");
+  assert.ok(/went wrong/.test(body));
+});
+
 await check("an HTML error page is not a success", async () => {
   const body = await submit({ status: 200, contentType: "text/html", body: "<html>nope</html>" });
   assert.ok(!/See you there/.test(body));
@@ -232,6 +241,48 @@ console.log("\nOlder iOS Safari — AbortSignal.timeout does not exist there");
   await check("a guest on iOS 15 can still submit", async () => {
     assert.ok(/See you there/.test(body), `got: ${body.slice(0, 160)}`);
     assert.equal(pageErrors.length, 0, pageErrors.join(", "));
+  });
+
+  await page.close();
+}
+
+// ---------------------------------------------------------------------------
+console.log("\nA browser with no AbortSignal at all");
+{
+  // Older than the polyfill's own target. Whatever happens, the guest must
+  // never be left on a disabled "Sending" button with no way to retry.
+  const context = await browser.newContext({ ...devices["iPhone 13"] });
+  await context.addInitScript(() => {
+    delete window.AbortSignal;
+    delete window.AbortController;
+  });
+  const page = await context.newPage();
+  await page.goto(URL, { waitUntil: "networkidle" });
+  await page.route(ENDPOINT_GLOB, (route) =>
+    route.fulfill(json({ ok: true, data: { attending: "declines" } })),
+  );
+
+  await page.locator("form").scrollIntoViewIfNeeded();
+  await page.fill("form input[type=text]", "Alex & Sam Lee");
+  await page.getByText("Regretfully declines").click();
+  await page.locator("form button[type=submit]").click();
+  await page.waitForTimeout(900);
+
+  const button = page.locator("form button[type=submit]");
+
+  await check("the button recovers instead of latching on Sending", async () => {
+    assert.equal((await button.textContent()).trim(), "Submit");
+    assert.equal(await button.isDisabled(), false);
+  });
+
+  await check("the guest is told something went wrong", async () => {
+    assert.ok(/went wrong|could not reach/.test(await page.locator("form").textContent()));
+  });
+
+  await check("and can try again", async () => {
+    await button.click();
+    await page.waitForTimeout(600);
+    assert.equal(await button.isDisabled(), false, "a retry re-latched the guard");
   });
 
   await page.close();

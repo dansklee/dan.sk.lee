@@ -21,6 +21,16 @@ assert.deepEqual(Object.keys(errors).sort(), ['attending', 'names']);
 
 assert.equal(validateRsvp({ ...base, names: '   ' }).errors.names, 'Please tell us who you are.');
 
+// The backend strips tags before measuring, so a tag-only name must be caught
+// here too — otherwise it comes back as a form error with no field marked.
+assert.ok(validateRsvp({ ...base, names: '<b></b>' }).errors.names, 'tag-only name should be rejected');
+assert.ok(validateRsvp({ ...base, names: '<script>x</script>' }).errors.names,
+  'one character left after stripping is still too short, exactly as the server sees it');
+assert.equal(validateRsvp({ ...accepting, names: '<b>Jo Park</b>' }).valid, true,
+  'the text inside a tag still counts as a name');
+assert.equal(validateRsvp({ ...accepting, names: 'Jo  <i>Park</i>' }).valid, true,
+  'markup around a real name is fine');
+
 // Declining skips every question below the attendance choice: validating
 // collapsed inputs would point at markup the guest cannot see.
 ({ valid, errors } = validateRsvp({ ...base, names: 'Jo Park', attending: 'declines' }));

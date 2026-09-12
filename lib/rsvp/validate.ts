@@ -31,7 +31,13 @@ export const FIELD_ORDER: RsvpFieldKey[] = [
 
 export type RsvpErrors = Partial<Record<RsvpFieldKey, string>>;
 
-const clean = (value: string) => value.trim();
+/**
+ * Mirrors `sanitize_` in apps-script/Code.gs. Checking only the length let a
+ * tag-only name like "<b></b>" pass here and be rejected there, which arrives
+ * as a form-level error with no field marked.
+ */
+const clean = (value: string) =>
+  value.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
 
 export function validateRsvp(state: RsvpFormState): {
   valid: boolean;

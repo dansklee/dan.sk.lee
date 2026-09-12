@@ -129,25 +129,32 @@ export function RsvpForm() {
     inFlight.current = true;
     setSending(true);
 
-    const result = await submitRsvp(
-      {
-        names: state.names.trim(),
-        attending: state.attending!,
-        ceremony: accepting ? toBool(state.ceremony) : null,
-        reception: accepting ? toBool(state.reception) : null,
-        dietaryRestrictions: accepting ? toBool(state.dietary) : null,
-        dietaryNotes: needsNotes ? state.dietaryNotes.trim() : "",
-      },
-      ENDPOINT,
-    );
-    setSending(false);
-    inFlight.current = false;
+    try {
+      const result = await submitRsvp(
+        {
+          names: state.names.trim(),
+          attending: state.attending!,
+          ceremony: accepting ? toBool(state.ceremony) : null,
+          reception: accepting ? toBool(state.reception) : null,
+          dietaryRestrictions: accepting ? toBool(state.dietary) : null,
+          dietaryNotes: needsNotes ? state.dietaryNotes.trim() : "",
+        },
+        ENDPOINT,
+      );
 
-    if (result.ok) {
-      setSent(state);
-      return;
+      if (result.ok) {
+        setSent(state);
+        return;
+      }
+      setFormError(result.message);
+    } catch {
+      // Nothing should reach here, but a guest left staring at a disabled
+      // "Sending" button with no way to retry is the worst possible ending.
+      setFormError("Something went wrong sending that. Please try again.");
+    } finally {
+      setSending(false);
+      inFlight.current = false;
     }
-    setFormError(result.message);
   }
 
   if (sent) {

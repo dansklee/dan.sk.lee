@@ -16,9 +16,13 @@ export function PageNav({ pages }: { pages: PageRef[] }) {
   const [activeId, setActiveId] = useState(pages[0]?.id ?? "");
 
   useEffect(() => {
+    // Ordered by position, not by however `pages` happens to be written, so
+    // the picker and the bottom-of-document case cannot silently disagree
+    // with the DOM.
     const sections = pages
       .map((page) => document.getElementById(page.id))
-      .filter((el): el is HTMLElement => el !== null);
+      .filter((el): el is HTMLElement => el !== null)
+      .sort((a, b) => a.offsetTop - b.offsetTop);
 
     if (sections.length === 0) return;
 

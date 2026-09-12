@@ -21,11 +21,27 @@ function timeoutSignal(ms: number): { signal: AbortSignal; done: () => void } {
   return { signal: controller.signal, done: () => clearTimeout(timer) };
 }
 
-/** A 200 with an unexpected body must not read as a silent success. */
+/**
+ * A 200 with an unexpected body must not read as a silent success.
+ *
+ * The success arm is checked all the way down to `attending`: a bare
+ * `{"ok":true}` — a stale deployment, the wrong URL, a proxy's health
+ * response — would otherwise thank the guest for a reply nobody recorded,
+ * and the narrowing to a required `data` would be a lie.
+ */
 function isApiResult(value: unknown): value is ApiResult<RsvpAccepted> {
   if (typeof value !== "object" || value === null) return false;
-  const result = value as { ok?: unknown; message?: unknown };
-  if (result.ok === true) return true;
+  const result = value as { ok?: unknown; data?: unknown; message?: unknown };
+
+  if (result.ok === true) {
+    const data = result.data as { attending?: unknown } | undefined;
+    return (
+      typeof data === "object" &&
+      data !== null &&
+      (data.attending === "accepts" || data.attending === "declines")
+    );
+  }
+
   return result.ok === false && typeof result.message === "string";
 }
 
@@ -74,9 +90,15 @@ export async function submitRsvp(
       typeof navigator === "undefined" ? "" : navigator.userAgent.slice(0, 200),
   };
 
-  const { signal, done } = timeoutSignal(timeoutMs);
+  // Built inside the try: on a browser with neither AbortSignal nor
+  // AbortController, constructing it throws, and a throw escaping this
+  // function leaves the form with no result to act on.
+  let release = () => {};
 
   try {
+    const { signal, done } = timeoutSignal(timeoutMs);
+    release = done;
+
     const response = await fetch(endpoint, {
       method: "POST",
       // text/plain keeps this a CORS "simple request". Apps Script does not
@@ -101,6 +123,6 @@ export async function submitRsvp(
   } catch (error) {
     return networkError(error);
   } finally {
-    done();
+    release();
   }
 }
