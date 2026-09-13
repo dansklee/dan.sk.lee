@@ -463,6 +463,49 @@ console.log("\nGallery photographs");
 }
 
 // ---------------------------------------------------------------------------
+console.log("\nSchedule illustrations");
+{
+  const page = await (await browser.newContext({ viewport: { width: 1087, height: 900 } })).newPage();
+  const failed = [];
+  page.on("response", (r) => {
+    if (r.status() >= 400 && /icons/.test(r.url())) failed.push(`${r.status()} ${r.url()}`);
+  });
+  await page.goto(URL, { waitUntil: "networkidle" });
+  await page.locator("#the-day-heading").scrollIntoViewIfNeeded();
+  await page.waitForTimeout(1800);
+
+  const drawn = await page.evaluate(() =>
+    [...document.querySelectorAll("ol li img")].map((i) => ({
+      w: Math.round(i.getBoundingClientRect().width),
+      h: Math.round(i.getBoundingClientRect().height),
+      loaded: i.naturalWidth > 0,
+    })),
+  );
+
+  await check("all six illustrations load", async () => {
+    assert.equal(drawn.length, 6, `found ${drawn.length}`);
+    drawn.forEach((d, i) => assert.ok(d.loaded, `illustration ${i + 1} did not load`));
+    assert.equal(failed.length, 0, failed.join(", "));
+  });
+
+  await check("they keep the comp's proportions to one another", async () => {
+    // Comp artwork, in order: rings 66x37, camera 85x57, fountain 62x66,
+    // glasses 82x72, table 80x67, car 73x74. Only the ratios are pinned, since
+    // the whole set scales with --icon-unit.
+    const comp = [66 / 37, 85 / 57, 62 / 66, 82 / 72, 80 / 67, 73 / 74];
+    drawn.forEach((d, i) => {
+      const ratio = d.w / d.h;
+      assert.ok(
+        Math.abs(ratio - comp[i]) < 0.08,
+        `illustration ${i + 1} is ${ratio.toFixed(2)}, comp is ${comp[i].toFixed(2)}`,
+      );
+    });
+  });
+
+  await page.close();
+}
+
+// ---------------------------------------------------------------------------
 console.log("\nAdversarial form use");
 {
   // A deliberately slow server, so the in-flight window is wide enough to poke.

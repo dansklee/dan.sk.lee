@@ -31,6 +31,10 @@
 
   /* Minimum comfortable touch target. */
   --tap: 48px;
+
+  /* Scales the schedule illustrations as a set; each one's width is its size
+     in the comp, so their proportions to each other are fixed. */
+  --icon-unit: 0.85px;
 }
 
 html {
@@ -70,6 +74,12 @@ body {
     width: 2.25rem;
     background-color: currentColor;
     opacity: 0.5;
+  }
+}
+
+@media (min-width: 640px) {
+  :root {
+    --icon-unit: 1.05px;
   }
 }
 

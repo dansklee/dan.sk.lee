@@ -29,6 +29,7 @@ in `data/wedding.ts` if it changes.
 | `gallery-1..3.jpg` | Swipeable gallery under The Day | 2:3 portrait, in colour as the comp has them |
 | `rec-state-street.jpg`, `rec-mcconnells.jpg`, `rec-funk-zone.jpg` | Local recommendation cards | from the comps, 157×187 upscaled |
 | `rec-placeholder.svg` | Fourth card — still unfilled | 157:187 portrait |
+| `icons/*.png` | The six schedule illustrations | from the comps, transparent |
 
 The `bg-*` files are kept as full frames rather than cropped to landscape: a
 wide screen shows only a horizontal band of them, and *which* band is chosen
@@ -82,3 +83,20 @@ The scrim is only 25%: these pixels already arrive at their finished tone, so
 it has to protect type over the bright blooms, not darken a daylight
 photograph. At 25% the worst case on any section is 4.73:1 against cream,
 clearing AA, measured with the type hidden.
+
+### The schedule illustrations
+
+`icons/` holds the designer's own line drawings for The Day, lifted from the
+comps rather than redrawn — the first version of this site used hand-drawn
+approximations, which were not the same artwork at all.
+
+The olive field was converted to transparency by mapping luminance to alpha,
+so the stroke keeps its antialiasing and the art sits on any background. Each
+one was cut at its own extent: the time label sits a few pixels under every
+icon, so the crop follows the first band of ink and stops at the blank rows
+before the label.
+
+Their sizes in the comp are recorded in `components/Icons.tsx` and drive the
+rendered width, so the six hold their proportions to each other — the rings
+wide and low at 66×37, the car nearly square at 73×74. `--icon-unit` in
+`app/globals.css` scales the whole set at once.
