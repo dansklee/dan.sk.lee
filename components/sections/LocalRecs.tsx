@@ -22,7 +22,8 @@ export function LocalRecs() {
         explore around the area:
       </p>
 
-      <div className="mx-auto mt-12 max-w-2xl">
+      {/* 38rem gives the comp's 278px cards once the 8.4% gap is taken out. */}
+      <div className="mx-auto mt-12 max-w-[38rem]">
         <Filmstrip
           label="Local recommendations"
           columns={2}
@@ -36,7 +37,7 @@ export function LocalRecs() {
                   {place.name}
                 </h3>
 
-                <div className="relative mt-5 aspect-[3/4] w-full max-w-[11rem] overflow-hidden bg-olive-deep">
+                <div className="relative mt-5 aspect-[157/187] w-[69%] overflow-hidden bg-olive-deep">
                   <Image
                     src={place.image}
                     alt={place.name}

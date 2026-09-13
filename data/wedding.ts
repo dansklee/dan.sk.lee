@@ -85,21 +85,21 @@ export const recommendations = [
     address: "500 State St, Santa Barbara, CA 93101",
     blurb:
       "Wander this historic street, lined with independent shops, cafés, and cosy corners.",
-    image: "/images/rec-state-street.svg",
+    image: "/images/rec-state-street.jpg",
   },
   {
     name: "McConnell's Fine Ice Creams",
     address: "728 State St, Santa Barbara, CA 93101",
     blurb:
       "A local favorite, enjoy a scoop on us after the ceremony, just a short stroll away.",
-    image: "/images/rec-mcconnells.svg",
+    image: "/images/rec-mcconnells.jpg",
   },
   {
     name: "The Funk Zone",
     address: null,
     blurb:
       "A lively little pocket of wine, local shops, good food, and great coffee.",
-    image: "/images/rec-funk-zone.svg",
+    image: "/images/rec-funk-zone.jpg",
   },
   {
     // TODO: the comp left this card as template filler (it describes a National

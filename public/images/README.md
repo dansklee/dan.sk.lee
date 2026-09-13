@@ -1,11 +1,22 @@
 # Image slots
 
-Two different sources here.
+Three different sources here.
 
 `gallery-*.jpg` are the couple's photographs, in colour, as the comps have
 them. `bg-*.jpg` are the **calla lilies** from the comps themselves — the
 blurred macro the designer put behind every photographic band — lifted from
 the Canva exports and converted to black and white.
+
+`rec-*.jpg` are the three recommendation photographs, also lifted from the
+comps — the designer had already chosen them. They only exist there at about
+157px wide, so they are upscaled 2.5x with a light sharpen. If better
+originals turn up they are a straight swap and will look crisper.
+
+The fourth card has no photograph because the comp never had one: its slot
+holds a Canva placeholder illustration and its text is template filler
+("Restaurant Here", and a National Trust property in England). `Los Agaves`
+and `East Beach Tacos` appear in that filler, so they were probably the
+shortlist.
 
 Replace one by dropping in a file of the same name, and update the extension
 in `data/wedding.ts` if it changes.
@@ -16,7 +27,8 @@ in `data/wedding.ts` if it changes.
 | `bg-venues.jpg` | Behind Ceremony / Reception | calla lilies, black and white |
 | `bg-rsvp.jpg` | Behind the RSVP form | calla lilies, black and white |
 | `gallery-1..3.jpg` | Swipeable gallery under The Day | 2:3 portrait, in colour as the comp has them |
-| `rec-*.svg` | Local recommendation cards | 960 × 1140, portrait |
+| `rec-state-street.jpg`, `rec-mcconnells.jpg`, `rec-funk-zone.jpg` | Local recommendation cards | from the comps, 157×187 upscaled |
+| `rec-placeholder.svg` | Fourth card — still unfilled | 157:187 portrait |
 
 The `bg-*` files are kept as full frames rather than cropped to landscape: a
 wide screen shows only a horizontal band of them, and *which* band is chosen
@@ -41,6 +53,8 @@ keeping if the layout is ever reworked:
 | Gap between frames | 93px — 43.3% of a frame | `gap-[11.2%]` (11.2% of the row) |
 | Gallery row width | 829 of 1087px — 76% of the page | `max-w-[52rem]` |
 | Recommendation card gap | 51px on a 276px card — 18.4% | `gap-[8.4%]` |
+| Recommendation card | 278px wide on a 1058px page | `max-w-[38rem]` on the row |
+| Card photograph | 157 × 187px, 56% of the card | `aspect-[157/187] w-[69%]` |
 | Backdrop source | the comps' own calla lily bands | `bg-*.jpg`, greyscale |
 | Backdrop scrim | 25% warm black | `.photo-scrim` in `app/globals.css` |
 
