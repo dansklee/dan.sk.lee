@@ -52,6 +52,24 @@ scroll sweep backs up the observer — a fast flick can move an element past the
 fold between two frames without ever intersecting. Nothing can end up
 permanently invisible.
 
+**The type scale**, verbatim from `DESIGN.md` — seven steps from `--step--2`
+at 0.688rem to `--step-4` at 3.6→7.6rem, plus the 1.25 multiplier script
+elements carry because Pinyon Script reads about 25% smaller than a typical
+face at the same pixel size.
+
+This is worth stating plainly, because the second design renders type
+noticeably smaller than this scale produces. **The scale is the system of
+record, not the second comp's pixel sizes.** The imagery was matched to the
+second comp pixel for pixel; the type deliberately was not. One addition:
+`--step-3-long`, a smaller floor for headings that are a single unbreakable
+word, because "RECOMMENDATIONS" at the `--step-3` minimum is wider than a
+390px phone.
+
+**The spacing scale**, also verbatim: a 4px base running `--sp-1` 0.25rem to
+`--sp-9` 6.5rem. Bands take `--sp-8` on a phone and `--sp-9` from 768px, side
+padding is `--sp-5`, and blocks inside The Details are separated by `--sp-7`
+plus a hairline rule. `--tap` is 3rem.
+
 **Mobile fundamentals.** Fluid `clamp()` type scale instead of breakpoint steps;
 48px minimum touch targets; form inputs never below 16px, since iOS Safari zooms
 the viewport otherwise and does not zoom back; hover styles only inside

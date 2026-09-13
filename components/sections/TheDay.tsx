@@ -5,7 +5,7 @@ import { schedule } from "@/data/wedding";
 
 export function TheDay() {
   return (
-    <section className="bg-olive px-5 py-16 sm:py-24" aria-labelledby="the-day-heading">
+    <section className="bg-olive px-[var(--sp-5)] py-[var(--sp-8)] md:py-[var(--sp-9)]" aria-labelledby="the-day-heading">
       <h2
         id="the-day-heading"
         className="text-center font-display text-step-3 font-semibold tracking-[0.12em] text-cream-light"

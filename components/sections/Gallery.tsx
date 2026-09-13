@@ -5,7 +5,7 @@ import { gallery } from "@/data/wedding";
 
 export function Gallery() {
   return (
-    <section className="bg-cream-light px-5 py-16 text-ink sm:py-24" aria-label="Photographs">
+    <section className="bg-cream-light text-ink px-[var(--sp-5)] py-[var(--sp-8)] md:py-[var(--sp-9)]" aria-label="Photographs">
       {/* 52rem ≈ the comp's 829px row at its 1087px page width. */}
       <div className="mx-auto max-w-[52rem]">
         <Filmstrip

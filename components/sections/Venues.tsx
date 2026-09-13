@@ -14,7 +14,7 @@ export function Venues() {
       />
       <div className="photo-scrim absolute inset-0" aria-hidden="true" />
 
-      <div className="relative mx-auto max-w-prose px-5 py-20 text-center text-cream-light sm:py-28">
+      <div className="relative mx-auto max-w-prose text-center text-cream-light px-[var(--sp-5)] py-[var(--sp-8)] md:py-[var(--sp-9)]">
         {venues.map((venue, index) => (
           <div key={venue.name}>
             {index > 0 && <Ornament className="my-12 text-cream-light/70" />}

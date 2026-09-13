@@ -14,7 +14,7 @@ export function Rsvp() {
       />
       <div className="photo-scrim absolute inset-0" aria-hidden="true" />
 
-      <div className="relative px-5 py-14 sm:py-20">
+      <div className="relative px-[var(--sp-5)] py-[var(--sp-8)] md:py-[var(--sp-9)]">
         <h2
           id="rsvp-heading"
           className="text-center font-display text-step-3 tracking-[0.1em] text-cream-light"

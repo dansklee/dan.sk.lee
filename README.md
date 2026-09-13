@@ -106,6 +106,17 @@ then put the `/exec` URL in `NEXT_PUBLIC_RSVP_ENDPOINT`.
 Until that variable is set the form renders and validates normally but tells
 guests it is not connected yet, so nothing breaks in development.
 
+## Two design systems, on purpose
+
+The **imagery** is matched to the current Canva comps, measured rather than
+eyeballed — frame sizes, gaps, crops and backdrop tone are all recorded in
+[public/images/README.md](public/images/README.md).
+
+The **type and spacing** come from the first design's system, documented in the
+earlier prototype's `DESIGN.md` and carried over whole. The current comps render
+type smaller than that scale produces; the scale wins. See
+[docs/wedding-site/prototype-notes.md](docs/wedding-site/prototype-notes.md).
+
 ## Still to do
 
 - Replace the placeholders in `public/images/` with the real photography.

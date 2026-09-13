@@ -14,7 +14,7 @@ export function Hero() {
       />
       <div className="photo-scrim absolute inset-0" aria-hidden="true" />
 
-      <div className="relative px-5 pb-24 pt-16 text-center text-cream-light">
+      <div className="relative px-[var(--sp-5)] pb-24 pt-16 text-center text-cream-light">
         <h1
           id="hero-heading"
           className="font-script text-step-4 leading-[1.1]"
