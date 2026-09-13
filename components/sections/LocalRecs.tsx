@@ -5,7 +5,7 @@ import { recommendations } from "@/data/wedding";
 
 export function LocalRecs() {
   return (
-    <section className="bg-olive px-5 py-16 text-cream-light sm:py-24" aria-labelledby="local-recs">
+    <section className="bg-olive text-cream-light px-[var(--sp-5)] py-[var(--sp-8)] md:py-[var(--sp-9)]" aria-labelledby="local-recs">
       <h2
         id="local-recs"
         className="mx-auto max-w-lg text-center font-display text-step-3-long leading-tight tracking-[0.06em] sm:tracking-[0.08em]"

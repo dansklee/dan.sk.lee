@@ -2,7 +2,7 @@ import { gifts } from "@/data/wedding";
 
 export function Gifts() {
   return (
-    <section className="bg-cream-light px-5 py-20 text-center sm:py-28" aria-labelledby="gifts">
+    <section className="bg-cream-light text-center px-[var(--sp-5)] py-[var(--sp-8)] md:py-[var(--sp-9)]" aria-labelledby="gifts">
       <p className="tracking-label font-display text-step--1 text-ink"
         data-reveal>
         {gifts.eyebrow}

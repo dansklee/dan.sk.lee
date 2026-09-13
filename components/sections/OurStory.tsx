@@ -28,7 +28,7 @@ function ArchedTitle({ text }: { text: string }) {
 
 export function OurStory() {
   return (
-    <section className="bg-cream px-5 py-16 sm:py-24" aria-label={story.title}>
+    <section className="bg-cream px-[var(--sp-5)] py-[var(--sp-8)] md:py-[var(--sp-9)]" aria-label={story.title}>
       <div className="mx-auto w-full max-w-[26rem]">
         <div
           className="rounded-[13rem] border border-olive-light/70 bg-cream-paper px-7 py-12 text-center sm:px-12 sm:py-16"

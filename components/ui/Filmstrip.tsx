@@ -129,7 +129,7 @@ export function Filmstrip({
       <ul
         ref={stripRef}
         aria-label={label}
-        className={`-mx-5 grid ${gapClass} snap-x snap-mandatory auto-cols-[78%] grid-flow-col overflow-x-auto overscroll-x-contain px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-auto md:grid-flow-row ${gridAtMd} md:auto-cols-auto md:overflow-x-visible md:px-0`}
+        className={`-mx-[var(--sp-5)] grid ${gapClass} snap-x snap-mandatory auto-cols-[78%] grid-flow-col overflow-x-auto overscroll-x-contain px-[var(--sp-5)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-auto md:grid-flow-row ${gridAtMd} md:auto-cols-auto md:overflow-x-visible md:px-0`}
       >
         {children}
       </ul>

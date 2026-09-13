@@ -29,8 +29,23 @@
   --micro: 260ms;
   --reveal: 800ms;
 
+  /*
+    Spacing scale from the first design's system (the prototype's DESIGN.md),
+    which this site still follows: a 4px base, bands at --sp-8 on a phone and
+    --sp-9 from 768px, and --sp-7 plus a hairline rule between subsections.
+  */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4.5rem;
+  --sp-9: 6.5rem;
+
   /* Minimum comfortable touch target. */
-  --tap: 48px;
+  --tap: 3rem;
 
   /* Scales the schedule illustrations as a set; each one's width is its size
      in the comp, so their proportions to each other are fixed. */

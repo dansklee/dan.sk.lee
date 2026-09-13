@@ -3,7 +3,7 @@ import { details } from "@/data/wedding";
 
 export function Details() {
   return (
-    <section className="bg-olive px-5 py-20 sm:py-28" aria-label="Guest information">
+    <section className="bg-olive px-[var(--sp-5)] py-[var(--sp-8)] md:py-[var(--sp-9)]" aria-label="Guest information">
       <div className="mx-auto max-w-prose text-center text-cream-light">
         {details.map((block, index) => (
           <div key={block.title}>
