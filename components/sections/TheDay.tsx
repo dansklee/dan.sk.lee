@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { icons, type IconName } from "@/components/Icons";
 import { schedule } from "@/data/wedding";
 
@@ -16,8 +18,9 @@ export function TheDay() {
         {schedule.map((item, index) => {
           // data/wedding.ts is the documented copy-editing surface, so a typo
           // here must not crash the render.
-          const Icon: ((props: { className?: string }) => React.JSX.Element) | undefined =
-            icons[item.icon as IconName];
+          const icon = icons[item.icon as IconName] as
+            | (typeof icons)[IconName]
+            | undefined;
           const onLeft = index % 2 === 1;
 
           return (
@@ -52,8 +55,18 @@ export function TheDay() {
                     : "sm:col-start-3"
                 }`}
               >
-                {Icon ? (
-                  <Icon className="h-16 w-16 text-cream-light/85 sm:h-20 sm:w-20" />
+                {icon ? (
+                  /* Sized from the artwork's own dimensions in the comp, so the
+                     six keep their proportions to one another. */
+                  <Image
+                    src={icon.src}
+                    alt=""
+                    width={icon.width * 4}
+                    height={icon.height * 4}
+                    aria-hidden="true"
+                    className="h-auto"
+                    style={{ width: `calc(${icon.width} * var(--icon-unit))` }}
+                  />
                 ) : (
                   <span className="block h-16 w-16 sm:h-20 sm:w-20" aria-hidden="true" />
                 )}
