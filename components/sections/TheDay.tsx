@@ -54,6 +54,7 @@ export function TheDay() {
                     ? "sm:col-start-1 sm:items-end sm:text-right"
                     : "sm:col-start-3"
                 }`}
+                data-reveal
               >
                 {icon ? (
                   /* Sized from the artwork's own dimensions in the comp, so the

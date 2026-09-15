@@ -35,18 +35,26 @@ export function MapLink({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className={`group inline-flex items-start gap-1.5 underline decoration-current/30 underline-offset-4 transition-colors hover:decoration-current ${className}`}
+      /*
+        Inline, not flex. A flex row puts the pin beside the whole address
+        block, floating next to the first line; inline keeps it in the text
+        flow so it lands after the last word — "…California 📍" — which is
+        where it reads as belonging to the address.
+      */
+      className={`underline decoration-current/30 underline-offset-4 transition-colors hover:decoration-current ${className}`}
     >
-      <span>{children}</span>
+      {children}
+      {/* Non-breaking space so the pin can never wrap onto a line by itself. */}
+      &#8239;
       <svg
         viewBox="0 0 24 24"
         aria-hidden="true"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.4"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="mt-[0.15em] h-[1em] w-[1em] shrink-0 opacity-70"
+        className="inline-block h-[0.95em] w-[0.95em] shrink-0 -translate-y-[0.07em] align-middle opacity-75"
       >
         <path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z" />
         <circle cx="12" cy="10" r="2.6" />

@@ -1,6 +1,12 @@
 import { Countdown } from "@/components/Countdown";
 import { wedding } from "@/data/wedding";
 
+/*
+  Deliberately no `data-reveal` here. The hidden state is applied by script
+  after hydration, so anything above the fold is briefly blanked and then
+  revealed — a flicker on the very first thing a guest sees. There is also no
+  scroll to animate on: this is the frame they arrive at.
+*/
 export function Hero() {
   return (
     <section

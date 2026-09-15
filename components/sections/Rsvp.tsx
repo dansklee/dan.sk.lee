@@ -18,14 +18,18 @@ export function Rsvp() {
         <h2
           id="rsvp-heading"
           className="text-center font-display text-step-3 tracking-[0.1em] text-cream-light"
+          data-reveal
         >
           {rsvpCopy.title}
         </h2>
-        <p className="mt-3 text-center text-step--1 text-cream-light/90">
+        <p className="mt-3 text-center text-step--1 text-cream-light/90" data-reveal>
           {rsvpCopy.deadline}
         </p>
 
-        <div className="mx-auto mt-10 w-full max-w-md shadow-[0_20px_60px_rgba(24,22,16,0.35)]">
+        <div
+          className="mx-auto mt-10 w-full max-w-md shadow-[0_20px_60px_rgba(24,22,16,0.35)]"
+          data-reveal
+        >
           <RsvpForm />
         </div>
       </div>

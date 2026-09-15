@@ -36,7 +36,8 @@ export function Filmstrip({
   gapClass?: string;
 }) {
   const stripRef = useRef<HTMLUListElement>(null);
-  const [thumb, setThumb] = useState<{ width: number; offset: number } | null>(
+  /** `null` while the strip does not scroll. `index` is the slide in view. */
+  const [thumb, setThumb] = useState<{ count: number; index: number } | null>(
     null,
   );
   const [hintSpent, setHintSpent] = useState(false);
@@ -59,10 +60,31 @@ export function Filmstrip({
       return;
     }
 
-    const ratio = strip.clientWidth / strip.scrollWidth;
-    const progress = strip.scrollLeft / scrollable;
+    /*
+      One segment per slide, and the bar steps between them rather than
+      tracking the scroll offset continuously. The strip snaps to a slide, so a
+      bar that slides smoothly and then jerks to a stop when the snap lands is
+      reporting something the strip is not doing. Stepping matches it.
+    */
+    const count = strip.children.length;
+    const first = strip.children[0] as HTMLElement | undefined;
+    if (!count || !first) {
+      setThumb(null);
+      return;
+    }
 
-    setThumb({ width: ratio * 100, offset: (progress * (1 - ratio) * 100) / ratio });
+    // Slide pitch from the first two frames, so any gap is included.
+    const second = strip.children[1] as HTMLElement | undefined;
+    const pitch = second
+      ? second.offsetLeft - first.offsetLeft
+      : first.offsetWidth;
+
+    const index = Math.min(
+      count - 1,
+      Math.max(0, Math.round(strip.scrollLeft / Math.max(pitch, 1))),
+    );
+
+    setThumb({ count, index });
     if (strip.scrollLeft > 8) setHintSpent(true);
   }, []);
 
@@ -144,10 +166,10 @@ export function Filmstrip({
           <div className="relative h-[3px] w-[min(11rem,52%)]">
             <span className="absolute inset-0 bg-current opacity-30" />
             <span
-              className="absolute left-0 top-0 h-full bg-current transition-transform duration-[90ms] ease-linear"
+              className="absolute left-0 top-0 h-full bg-current transition-transform duration-[260ms] ease-out-cubic"
               style={{
-                width: `${thumb.width}%`,
-                transform: `translateX(${thumb.offset}%)`,
+                width: `${100 / thumb.count}%`,
+                transform: `translateX(${thumb.index * 100}%)`,
               }}
             />
           </div>

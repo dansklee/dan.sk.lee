@@ -34,16 +34,24 @@ export function OurStory() {
           className="rounded-[13rem] border border-olive-light/70 bg-cream-paper px-7 py-12 text-center sm:px-12 sm:py-16"
           data-reveal
         >
-          <ArchedTitle text={story.title} />
+          <div data-reveal>
+            <ArchedTitle text={story.title} />
+          </div>
 
-          <div className="mt-6 space-y-5 text-step-0 leading-relaxed text-ink-soft">
+          <div
+            className="mt-6 space-y-5 text-step-0 leading-relaxed text-ink-soft"
+            data-reveal
+          >
             {story.paragraphs.map((paragraph) => (
               <p key={paragraph.slice(0, 24)}>{paragraph}</p>
             ))}
           </div>
 
-          <p className="mt-8 text-step-0 text-ink-soft">{story.signOff}</p>
-          <p className="mt-4 font-script text-[calc(var(--step-2)*var(--script-bump))] text-ink">
+          <p className="mt-8 text-step-0 text-ink-soft" data-reveal>{story.signOff}</p>
+          <p
+            className="mt-4 font-script text-[calc(var(--step-2)*var(--script-bump))] text-ink"
+            data-reveal
+          >
             {wedding.couple}
           </p>
         </div>

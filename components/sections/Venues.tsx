@@ -38,11 +38,14 @@ export function Venues() {
                 query={`${venue.venue}, ${venue.address.join(", ")}`}
                 label={`Open ${venue.venue} in Maps`}
               >
-                {venue.address.map((line) => (
+                {/* Every line but the last is its own block; the last stays
+                    inline so the pin sits at the end of it. */}
+                {venue.address.slice(0, -1).map((line) => (
                   <span key={line} className="block">
                     {line}
                   </span>
                 ))}
+                {venue.address[venue.address.length - 1]}
               </MapLink>
             </address>
 
