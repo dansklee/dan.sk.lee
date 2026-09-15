@@ -80,17 +80,17 @@ export const gifts = {
    * pick. The middle option is the one most people want and carries the joke,
    * which is why it sits second and is the one marked.
    */
+  /**
+   * A ladder, not a price list: nails buy lumber, lumber builds the house, the
+   * house sits in the backyard. The $10,000 rung is the joke and nobody is
+   * expected to take it — it is there so the marked rung reads as modest.
+   */
   tiers: [
-    { amount: 250, label: "A patch of grass" },
-    {
-      amount: 500,
-      label: "Simon's cute backyard house",
-      featured: true,
-      aside: "Most loved",
-    },
-    { amount: 1000, label: "The whole backyard" },
+    { amount: 250, label: "A bag of nails" },
+    { amount: 500, label: "The lumber", featured: true, aside: "Most loved" },
+    { amount: 10000, label: "Simon's custom wooden house" },
     /** No amount: opens Venmo with the note and lets them type their own. */
-    { amount: null, label: "Something else" },
+    { amount: null, label: "The whole backyard" },
   ],
   closing: "Thank You",
 } as const;

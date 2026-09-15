@@ -45,7 +45,7 @@ export function Gifts() {
                 rel="noopener noreferrer"
                 aria-label={
                   tier.amount === null
-                    ? `Give another amount on Venmo — ${tier.label}`
+                    ? `Give an amount of your choosing on Venmo — ${tier.label}`
                     : `Give ${formatAmount(tier.amount)} on Venmo — ${tier.label}`
                 }
                 className={`flex min-h-tap items-center gap-4 px-4 py-3 transition-colors ${
@@ -59,7 +59,7 @@ export function Gifts() {
                     featured ? "" : "text-olive"
                   }`}
                 >
-                  {tier.amount === null ? "Other" : formatAmount(tier.amount)}
+                  {tier.amount === null ? "Any" : formatAmount(tier.amount)}
                 </span>
 
                 <span className="flex-1 text-step--1 leading-snug">
