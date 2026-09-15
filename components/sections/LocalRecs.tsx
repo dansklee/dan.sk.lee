@@ -2,6 +2,7 @@ import Image from "next/image";
 
 import { Filmstrip } from "@/components/ui/Filmstrip";
 import { recommendations } from "@/data/wedding";
+import { MapLink } from "@/components/ui/MapLink";
 
 export function LocalRecs() {
   return (
@@ -48,7 +49,14 @@ export function LocalRecs() {
                 </div>
 
                 {place.address && (
-                  <p className="mt-5 text-step--2 italic opacity-85">{place.address}</p>
+                  <p className="mt-5 text-step--2 italic opacity-85">
+                    <MapLink
+                      query={`${place.name}, ${place.address}`}
+                      label={`Open ${place.name} in Maps`}
+                    >
+                      {place.address}
+                    </MapLink>
+                  </p>
                 )}
 
                 <p className="mt-3 text-step--2 italic leading-relaxed opacity-85">

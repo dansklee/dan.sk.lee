@@ -1,5 +1,6 @@
 import { Ornament } from "@/components/ui/Ornament";
 import { venues } from "@/data/wedding";
+import { MapLink } from "@/components/ui/MapLink";
 
 export function Venues() {
   return (
@@ -31,11 +32,18 @@ export function Venues() {
             </p>
 
             <address className="mt-6 not-italic leading-relaxed opacity-90" data-reveal>
-              {venue.address.map((line) => (
-                <span key={line} className="block">
-                  {line}
-                </span>
-              ))}
+              {/* The whole address is the link — a guest reading it on a phone
+                  wants to open it, not select and paste it somewhere. */}
+              <MapLink
+                query={`${venue.venue}, ${venue.address.join(", ")}`}
+                label={`Open ${venue.venue} in Maps`}
+              >
+                {venue.address.map((line) => (
+                  <span key={line} className="block">
+                    {line}
+                  </span>
+                ))}
+              </MapLink>
             </address>
 
             {venue.note && (

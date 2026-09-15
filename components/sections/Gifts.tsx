@@ -18,8 +18,12 @@ export function Gifts() {
         {gifts.body}
       </p>
 
+      {/* Leaves the site, so it opens in a new tab and says where it goes. */}
       <a
         href={gifts.ctaHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`${gifts.ctaLabel} — open Venmo`}
         className="tracking-label hover-dim mt-10 inline-flex min-h-tap items-center border border-ink/45 px-8 text-step--2 text-ink transition-colors"
         data-reveal
       >

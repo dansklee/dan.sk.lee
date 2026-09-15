@@ -74,8 +74,9 @@ export const gifts = {
   title: "On Gifts",
   body: "Your presence is the greatest gift. For those who have kindly asked, a contribution toward Simon's dream backyard would be deeply appreciated.",
   ctaLabel: "Click Here",
-  /** TODO: registry or fund link. */
-  ctaHref: "#",
+  /** Venmo profile. On a phone with the app installed this opens Venmo; in a
+   *  browser it lands on the public profile page. */
+  ctaHref: "https://venmo.com/u/dan-lee-17",
   closing: "Thank You",
 } as const;
 

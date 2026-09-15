@@ -1,4 +1,3 @@
-import { PageNav, type PageRef } from "@/components/PageNav";
 import { Reveal } from "@/components/ui/Reveal";
 import { Closing } from "@/components/sections/Closing";
 import { Details } from "@/components/sections/Details";
@@ -11,14 +10,12 @@ import { Rsvp } from "@/components/sections/Rsvp";
 import { TheDay } from "@/components/sections/TheDay";
 import { Venues } from "@/components/sections/Venues";
 
-/** One entry per page in the comps; drives the floating dot navigator. */
-const pages: PageRef[] = [
-  { id: "welcome", label: "Welcome" },
-  { id: "the-day", label: "The day" },
-  { id: "rsvp", label: "RSVP" },
-  { id: "around-town", label: "Around town" },
-];
-
+/*
+  The floating dot navigator is gone. It sat fixed across the bottom centre of
+  the screen, and the RSVP options are full-width bars — so an option scrolled
+  under the pill swallowed the tap and the guest could not choose accept or
+  decline at all. The section ids stay as anchor targets.
+*/
 export default function Home() {
   return (
     <>
@@ -46,7 +43,6 @@ export default function Home() {
         </div>
       </main>
 
-      <PageNav pages={pages} />
       <Reveal />
     </>
   );

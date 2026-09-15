@@ -139,8 +139,10 @@ export function Filmstrip({
         <div className="mt-5 grid justify-items-center gap-3">
           {/* Rail and thumb are siblings: opacity on a shared parent would
               dim the thumb along with the rail and hide the indicator. */}
-          <div className="relative h-0.5 w-[min(9rem,40%)]">
-            <span className="absolute inset-0 bg-current opacity-25" />
+          {/* 2px at 25% opacity was there but nobody saw it. Taller rail,
+              stronger track, so the thing reads as a control. */}
+          <div className="relative h-[3px] w-[min(11rem,52%)]">
+            <span className="absolute inset-0 bg-current opacity-30" />
             <span
               className="absolute left-0 top-0 h-full bg-current transition-transform duration-[90ms] ease-linear"
               style={{
