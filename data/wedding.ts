@@ -73,10 +73,25 @@ export const gifts = {
   eyebrow: "A Note",
   title: "On Gifts",
   body: "Your presence is the greatest gift. For those who have kindly asked, a contribution toward Simon's dream backyard would be deeply appreciated.",
-  ctaLabel: "Click Here",
-  /** Venmo profile. On a phone with the app installed this opens Venmo; in a
-   *  browser it lands on the public profile page. */
-  ctaHref: "https://venmo.com/u/dan-lee-17",
+  venmoHandle: "dan-lee-17",
+  /**
+   * Four amounts rather than an open field. Deciding how much to give a couple
+   * is the awkward part of this page, so the page decides for them and they
+   * pick. The middle option is the one most people want and carries the joke,
+   * which is why it sits second and is the one marked.
+   */
+  tiers: [
+    { amount: 250, label: "A patch of grass" },
+    {
+      amount: 500,
+      label: "Simon's cute backyard house",
+      featured: true,
+      aside: "Most loved",
+    },
+    { amount: 1000, label: "The whole backyard" },
+    /** No amount: opens Venmo with the note and lets them type their own. */
+    { amount: null, label: "Something else" },
+  ],
   closing: "Thank You",
 } as const;
 

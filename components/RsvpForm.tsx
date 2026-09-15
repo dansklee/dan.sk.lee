@@ -15,11 +15,24 @@ import type { RsvpFormState, YesNo } from "@/lib/rsvp/types";
 
 const ENDPOINT = process.env.NEXT_PUBLIC_RSVP_ENDPOINT ?? "";
 
+/*
+  Ceremony and reception start on "yes". Almost everyone who accepts is coming
+  to both, so the common case becomes: type your name, submit. A guest who
+  cannot make one of them changes it, which is the rarer action and the one
+  worth the tap.
+
+  Two fields deliberately stay unanswered:
+  - `attending` is the question being asked. Pre-answering it means a guest who
+    opens the form and abandons it is recorded as coming, and a false yes costs
+    a seat and a head of catering.
+  - `dietary` is a safety question. An unanswered field defaulting to "no
+    restrictions" is how somebody gets served the thing they are allergic to.
+*/
 const EMPTY: RsvpFormState = {
   names: "",
   attending: null,
-  ceremony: null,
-  reception: null,
+  ceremony: "yes",
+  reception: "yes",
   dietary: null,
   dietaryNotes: "",
 };
